@@ -1,14 +1,15 @@
 import winsound
 import os
+import sys
 
 from crawler import *
 from threading import Thread
 from time import sleep
 
 appid, counter, sfx = None, 0, ""
+config = configparser.ConfigParser()
 
 def init():
-    config = configparser.ConfigParser()
     config.read('config.ini')
 
     sfx = os.listdir('../res/')[int(config['SETTINGS']['sfx'])]
@@ -16,17 +17,18 @@ def init():
 
 def actively_check_playing(steam):
     global appid
+    steamid = config['PROFILE']['SteamID64']
 
     while (True):
-        appid = get_playing_id(steam)
+        appid = get_playing_appid(steam, steamid)
         sleep(5)
 
 def actively_check_achievement_count(sfx):
     global counter, appid
-    prev_appid, prev_counter = None, 0
+    prev_appid, prev_counter, steamurl = None, 0, config['PROFILE']['CustomURL']
 
     while (True):
-        counter = get_achievement_count(appid)
+        counter = get_achievement_count(appid, steamurl)
 
         if counter == None: 
             continue
@@ -39,9 +41,9 @@ def actively_check_achievement_count(sfx):
 
 def loop(steam, sfx):
     app_t = Thread(target=actively_check_playing, args=(steam,))
-    app_t.start()
-
     ach_t = Thread(target=actively_check_achievement_count, args=(sfx,))
+    
+    app_t.start()
     ach_t.start()
 
 boot = init()
