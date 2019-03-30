@@ -1,10 +1,10 @@
 const howler = require('howler');
-const scraper = require('./scraper');
+const scraper = require('../src/scraper');
 
 let gameid; let profileurl; let count = null;
 
 const playNotificationSound = () => {
-  const howl = new howler.Howl({ src: ['sounds/xbox-360.mp3'] });
+  const howl = new howler.Howl({ src: ['resources/xbox-360.mp3'] });
   howl.play();
 };
 
