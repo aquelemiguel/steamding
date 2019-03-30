@@ -1,11 +1,13 @@
+const howler = require('howler');
 const scraper = require('./scraper');
 
-let gameid; let profileurl;
+let gameid; let profileurl; let count = -1;
 
 const monitorAchievementUpdate = () => {
   scraper.fetchAchievementCount(profileurl, gameid, (err, res) => {
     if (err) return console.log(err);
-    console.log(res);
+    if (count === -1) { count = res; return; }
+    if (res >= count) { count = res; playNotificationSound(); }
   });
 };
 
@@ -19,6 +21,10 @@ const monitorPlayedGame = () => {
   setTimeout(monitorPlayedGame, 2000);
 };
 
+const playNotificationSound = () => {
+  const howl = new howler.Howl({ src: ['sounds/ps3-trophy-sound-effect.mp3'] });
+  howl.play();
+};
 
 const startMonitor = () => {
   monitorPlayedGame(); monitorAchievementUpdate();
