@@ -8,10 +8,17 @@ const fetchPlayingInfo = (key, steamid64, callback) => {
     if (err) return console.log(err);
     const player = body.response.players[0];
 
-    if (player === undefined) return callback('invalid steamid64.', { gameid: player.gameid, profileurl: null });
+    if (player === undefined) return callback('invalid steamid64.', { gameid: null, profileurl: null });
     if (player.gameid === undefined) return callback('user not playing any game.', { gameid: null, profileurl: player.profileurl });
 
     callback(null, { gameid: player.gameid, profileurl: player.profileurl });
+  });
+};
+
+const fetchUserInfo = (key, steamid64, callback) => {
+  request.get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${key}&steamids=${steamid64}`, { json: true }, (err, _res, body) => {
+    if (err) return console.log(err);
+    const player = body.response.players[0];
   });
 };
 
