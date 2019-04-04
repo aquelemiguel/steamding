@@ -3,22 +3,15 @@
 const cheerio = require('cheerio');
 const request = require('request');
 
-const fetchPlayingInfo = (key, steamid64, callback) => {
+const fetchPlayerInfo = (key, steamid64, callback) => {
   request.get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${key}&steamids=${steamid64}`, { json: true }, (err, _res, body) => {
     if (err) return console.log(err);
     const player = body.response.players[0];
 
-    if (player === undefined) return callback('invalid steamid64.', { gameid: null, profileurl: null });
-    if (player.gameid === undefined) return callback('user not playing any game.', { gameid: null, profileurl: player.profileurl });
+    if (player === undefined) return callback('invalid steamid64.', null);
+    //if (player.gameid === undefined) return callback('user not playing any game.', null);
 
-    callback(null, { gameid: player.gameid, profileurl: player.profileurl });
-  });
-};
-
-const fetchUserInfo = (key, steamid64, callback) => {
-  request.get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${key}&steamids=${steamid64}`, { json: true }, (err, _res, body) => {
-    if (err) return console.log(err);
-    const player = body.response.players[0];
+    callback(null, player);
   });
 };
 
@@ -37,5 +30,5 @@ const fetchAchievementCount = (steamurl, appid, callback) => {
 };
 
 module.exports = {
-  fetchPlayingInfo, fetchAchievementCount,
+  fetchPlayerInfo, fetchAchievementCount,
 };
