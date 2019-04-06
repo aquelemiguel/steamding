@@ -7,12 +7,15 @@
 </head>
 
 <body>
-    <div id="status-message">Offline</div>
+    <div id="status-message-user">Offline</div>
+    <div id="status-message-game">Offline</div>
     <input id="steamid64" type="text" placeholder="steamid64">
         <button id="steamid64-btn" type="button">Check</button>
     </input>
     <input id="sfxpath" type="text" placeholder="sfxpath">
         <button id="preview-sfx-btn" type="button">Preview</button>
+    </input>
+    <input id="polling-rate" type="number" min="50" max="2000" value="500">
     </input>
     
     <script type="text/javascript" src="../src/renderer.js"></script>
