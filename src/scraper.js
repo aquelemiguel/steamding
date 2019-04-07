@@ -16,7 +16,7 @@ const fetchPlayerInfo = (key, steamid64, callback) => {
   request.get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${key}&steamids=${steamid64}`, { json: true }, (err, _res, body) => {
     if (err) return console.log(err);
     const player = body.response.players[0];
-    if (player === undefined) return callback('invalid steamid64.', null);
+    if (player === undefined) return callback('invalid steamid64.', 'Not logged in');
     return callback(null, player);
   });
 };

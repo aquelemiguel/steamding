@@ -40,10 +40,10 @@ const trackPlayingInfo = (profileurl) => {
 document.getElementById('steamid64-btn').addEventListener('click', () => {
   scraper.fetchPlayerInfo('FE308435BF852EAD4175D2A70AA87C2D', document.getElementById('steamid64').value, (err, res) => {
     if (err) { console.log(err); return; } user = res;
-    document.getElementById('status-message-user').innerHTML = `Tracking ${user.personaname}`; // Set persona name.
+    document.getElementById('status-message-user').innerHTML = user.personaname; // Set persona name.
 
     if (user.gameextrainfo) document.getElementById('status-message-game').innerHTML = `Playing ${user.gameextrainfo}`;
-    else document.getElementById('status-message-game').innerHTML = 'Not playing';
+    else document.getElementById('status-message-game').innerHTML = 'Online';
 
     trackPlayingInfo(user ? user.profileurl : user); // Start tracking the player info.
   });
