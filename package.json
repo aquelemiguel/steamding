@@ -1,30 +1,22 @@
 {
-  "name": "steamding",
+  "name": "sding",
   "version": "1.0.0",
-  "description": "Until now, unlocking an achievement at Steam was a pretty bland experience compared to the **satisfactory sound effects** our console counterparts provide.  \r Recall the swift xylophonic sound of the PlayStation trophy or the minimalistic faucet-leaking two notes of the 360.  \r This tool fills that void by **playing a sound** of your choice whenever you achieve that unachievable achievement.",
-  "main": "main.js",
+  "description": "",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/aquelemiguel/steamding.git"
-  },
-  "author": "Miguel Mano",
+  "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/aquelemiguel/steamding/issues"
-  },
-  "homepage": "https://github.com/aquelemiguel/steamding#readme",
-  "devDependencies": {
-    "eslint": "^5.15.3",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.16.0"
-  },
   "dependencies": {
-    "cheerio": "^1.0.0-rc.2",
-    "howler": "^2.1.1",
+    "cheerio": "^1.0.0-rc.3",
+    "express": "^4.16.4",
+    "howler": "^2.1.2",
     "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.17.2"
   }
 }

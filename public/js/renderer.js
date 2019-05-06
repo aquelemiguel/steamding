@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 const howler = require('howler');
-const scraper = require('../src/scraper');
+const scraper = require('./scraper.js');
 
 let user; let playingTitle = ''; let count = null;
 
