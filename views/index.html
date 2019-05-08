@@ -20,8 +20,14 @@
     </input>
     <input id="polling-rate" type="number" min="50" max="2000" value="500">
     </input>
-    
-    <script type="text/javascript" src="../src/renderer.js"></script>
+
+    <form action="/preview" method="GET">
+        <input type="submit" value="Preview">
+    </form>
+
+    <form action="/auth/openid" method="POST">
+        <input type="submit" value="Login with Steam">
+    </form>
 </body>
 
 </html>

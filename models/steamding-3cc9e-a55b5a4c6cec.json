@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "steamding-3cc9e",
+  "private_key_id": "a55b5a4c6cec51d3197105159f63e39918b7eb35",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC66qvFix+X1vv1\ni4mE17bpXHbv0TUdHyGh3fWmvlSTFRmttCmziDcYr+1rZAYWzazMeRnIBuNCreQw\ncvzOL9Wllz/Ko/okonpoO8xGqmklrnnvFTg0D5s3kxz9LPVTgFzzOj4uM3B8TFSp\nvnqPV0elusyl906L4IN56xEKZusYRUReeP2T2qmPLqcPzqc1kTf5lTro/y+cyIpC\nWQd3NurJ4ulgxT0xNDEU3G8tgj1svFQflTRDpL4D9Vzi6tL14LHfYaE1dQ7LjL/H\nyrFYjc4IZsfK1LnxL0z1VLtFAml+gC34PE3DNP+DLQQPPF2n2o9f5J4h9ifkOgfE\nLlcTHHOjAgMBAAECggEAC3kzMQ2LU2qMDcmnwoKWmjglntk/LY9HJQ9MWxS3eU3O\nxTWtZ5/2uH+4DvhVUq9Y/4t2ydX5EOiT/LtaNEfbEUPkU7UsD3VKa+fbxVdZhp7G\nolExoX8hvnq7yU3/WHBP2ahGFSztfIZs81HGESgWNaCZRki/cWDx1m6CSHACgftH\nhlLaClHYDEzV7pvzQKZuAKNzzKNoK8zgSOJJbGi1MRwqsnX/NktV70AGdK/ROUZ3\nd5Khd6ud/RPpY87sH3UXhpe2VzaEfl6tCGvy7z3EZDGoetFtR/5ufckjqKMn8QFB\nNZ5oTjjvm2IyOv8IkizsZENyZNRrscVcQ5XR4nLtLQKBgQDv7B7KQ52KQS1/1EEE\n8JdVlN8nWHxqcEIIxCcZAW1ELgv1rTVpiEVMha0E3Qnq6z6+2PvO+0yxmqeCar64\ng43P3bem1cRP1u5o/f0VtziZjClThmINJuTnjObxZ2Ithfn9fKsj5W0JzbXTmklt\n8xQC9Du+eeYpDz4ugXvpor4DvwKBgQDHcTxn6K1lghEXD9IzXYysirHTy3JPn6mY\nmQYj9J4zo60MgEIdhgvtrNT2udXHTh+jzbx3r69DXCCGXr15p6CIBeQq3qeci7v/\n+0gpBNkNSZ0nG/3U4upDXqGPgPuMR93gtiMhPDwF2izgIpClJyxv8RsHKEU/S12n\n93vO0V+5HQKBgBo3KbIeK0OlFYynK6eXhmGyj6Oj9oxG0eBVVpRT5JWTlnj0wSZT\n3oabAKnMYT4LEGMYIIOgT+QEKxOECGzu6vrwlhWju/yhVpGgVxwdVhDpEMbwoxwe\nyNpIOh/clQy2W/eHvMeCVSTCFoEVlbpu2hvshe6tMSoBYWEBgwGnZ63PAoGAJrAv\noJSBNmSxvgCCrRYjmMDa2BPqG8oEEyb0CvuDyM6iXf9vU9zR6YwST74i2yOrfZIG\nUk1ROUbgxFASf0vmFxzVcv94EiUFFhX/nH1lQW+bPZ/vcGGIQgNUYcsKgN7cCqAq\nVmMh3ZzCAcSSvIbJ1vk1XgEQ1cNf6ppWePsij30CgYAKHxW9ZhvfYVAq/+AOMP8G\ne08XhpNIx9emZADFGlRK0k0R7VuEy0HrDT4W35xWUvlGetStUA2AM6+L1N5mW+ti\nNx3fCW33s2XGBissoveTfuc+8/d9hL7mWuHQlVRsgeRppBLnpKI7Hg5sdCAjBAtz\nNeumkY4nZmklYCsqJ2P+tw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "steamding-3cc9e@appspot.gserviceaccount.com",
+  "client_id": "100847560571915200649",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/steamding-3cc9e%40appspot.gserviceaccount.com"
+}

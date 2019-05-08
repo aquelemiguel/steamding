@@ -1,21 +1,21 @@
 @font-face {
     font-family: 'Motiva Sans Light';
-    src: url('fonts/Motiva-Sans-Light.ttf');
+    src: url('../fonts/motiva-sans-light.ttf');
 }
 
 @font-face {
     font-family: 'Motiva Sans Bold';
-    src: url('fonts/Motiva-Sans-Bold.ttf');
+    src: url('../fonts/motiva-sans-bold.ttf');
 }
 
 @font-face {
     font-family: 'Motiva Sans Light Italic';
-    src: url('fonts/Motiva-Sans-Light-Italic.ttf');
+    src: url('../fonts/motiva-sans-light-italic.ttf');
 }
 
 *{
     font-family: 'Motiva Sans Light';
-    background-color: #00101c;
+    background-color: black;
     color: white;
 }
 
@@ -24,13 +24,11 @@
 }
 
 h1 {
-    font-family: 'Motiva Sans Bold';
-    font-size: 20;
+    font-size: 100;
     line-height: 0.2;
 }
 
 h3 {
-    font-family: 'Motiva Sans Light Italic';
     font-size: 8;
     line-height: 0.2;
 }

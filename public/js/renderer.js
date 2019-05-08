@@ -7,7 +7,7 @@ let user; let playingTitle = ''; let count = null;
 // Play an achievement unlocked sound stored at file path ./resources/...
 const playUnlockSound = (sfxPath) => {
   const howl = new howler.Howl({
-    src: [`../resources/${sfxPath}.mp3`],
+    src: [`sfx/${sfxPath}.mp3`],
     onloaderror: () => console.log('Invalid path!'), // TODO: Eventually throw a cool alert instead of this default one.
     onload: () => howl.play(),
   });
