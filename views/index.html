@@ -10,24 +10,22 @@
 <body>
     <h1>STEAMDING</h1>
     <h3>beta 0.1b</h3>
-    <div id="status-message-user">Not logged in</div>
-    <div id="status-message-game"></div>
-    <input id="steamid64" type="text" placeholder="steamid64" size="17" maxlength="17">
-        <button id="steamid64-btn" type="button">Check</button>
-    </input>
-    <input id="sfxpath" type="text" placeholder="sfxpath">
-        <button id="preview-sfx-btn" type="button">Preview</button>
-    </input>
-    <input id="polling-rate" type="number" min="50" max="2000" value="500">
-    </input>
-
-    <form action="/preview" method="GET">
-        <input type="submit" value="Preview">
-    </form>
 
     <form action="/auth/openid" method="POST">
-        <input type="submit" value="Login with Steam">
+        <input id="login-btn" type="submit" value="Login with Steam">
     </form>
+
+    <form action="/auth/logout" method="POST">
+        <input id="logout-btn" type="submit" value="Logout">
+    </form>
+
+    <div id="status-message-user">Not logged in</div>
+
+    <input type="radio" name="sfx" value="xbox-360" checked="checked">Xbox 360<br>
+    <input type="radio" name="sfx" value="playstation">PlayStation<br>
+
+    <button id="preview" type="button">Preview</button>
+    <script src="js/renderer.js"></script>
 </body>
 
 </html>
