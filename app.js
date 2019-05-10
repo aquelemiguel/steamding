@@ -1,22 +1,37 @@
+/* eslint-disable no-console */
+require('dotenv').config({ path: 'variables.env' });
+
 const express = require('express');
-const parser = require('body-parser');
+const webPush = require('web-push');
 const path = require('path');
 const OpenIDStrategy = require('passport-openid').Strategy;
 const session = require('express-session');
 const passport = require('passport');
 
 const app = express();
-const port = 3000;
 
 const scraper = require('./middlewares/scraper');
 
-app.use(parser.urlencoded({ extended: true }));
+app.use(require('body-parser').json());
 
+// Push notifications handling.
+const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
+const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
+webPush.setVapidDetails('mailto:test@example.com', publicVapidKey, privateVapidKey);
+
+app.post('/subscribe', (req, res) => {
+  res.status(201).json({});
+
+  const payload = JSON.stringify({ title: 'Push notifications with Service Workers' });
+  webPush.sendNotification(req.body, payload).catch(error => console.log(error));
+});
+
+// Steam login handling.
 const SteamStrategy = new OpenIDStrategy({
   providerURL: 'http://steamcommunity.com/openid',
   stateless: true,
-  returnURL: `http://localhost:${port}/auth/openid/return`,
-  realm: `http://localhost:${port}`,
+  returnURL: `http://localhost:${process.env.port}/auth/openid/return`,
+  realm: `http://localhost:${process.env.port}`,
 }, (id, done) => process.nextTick(() => done(null, { identifier: id, steamID: id.match(/\d+$/)[0] })));
 
 passport.use(SteamStrategy);
@@ -54,15 +69,14 @@ app.post('/track', (req, res) => {
 
   if (req.user) {
     scraper.fetchPlayerProfile('FE308435BF852EAD4175D2A70AA87C2D', req.user.steamID)
-      .then(prof => setInterval(() => scraper.fetchAchievementNo(prof.profileurl, prof.gameid)
-        .then((achievements) => {
-          if (achievements > req.achievements) {
-            req.achievements = achievements;
-            console.log('change!');
-          } else console.log(achievements);
-        })
-        .catch(error => console.log(error)), 5000))
-      .catch(error => console.log(error));
+      .then(prof => scraper.fetchAchievementNo(prof.profileurl, prof.gameid)
+        .then((ach1) => {
+          req.achievements = ach1;
+          setInterval(() => scraper.fetchAchievementNo(prof.profileurl, prof.gameid)
+            .then((ach2) => {
+              if (ach2 > req.achievements) req.achievements = ach2;
+            }), 5000);
+        }));
   } else res.sendStatus(200);
 });
 
@@ -80,4 +94,5 @@ app.post('/auth/logout', (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, '/public')));
-app.listen(port, () => console.log(`Listening on port ${port}.`));
+app.use(express.static(path.join(__dirname, '/utils')));
+app.listen(process.env.PORT, () => console.log(`Listening on port ${process.env.PORT}.`));
