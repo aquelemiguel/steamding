@@ -32,3 +32,17 @@ h3 {
     font-size: 8;
     line-height: 0.2;
 }
+
+#profile-avatar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 1em 1em;
+}
+
+#persona-name {
+    position: absolute;
+    top: 10;
+    right: 0;
+    margin: 1em 1em;
+}

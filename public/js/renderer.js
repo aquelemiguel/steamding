@@ -3,27 +3,37 @@ document.getElementById('preview').addEventListener(('click'), () => {
   snd.play();
 });
 
-const updateLoginStatus = () => {
+const isLoggedIn = () => {
   const xtr = new XMLHttpRequest();
+  xtr.onload = () => {
+    if (xtr.response) document.getElementById('login-btn').style.display = 'none';
+    else document.getElementById('logout-btn').style.display = 'none';
+  };
+  xtr.responseType = 'json';
+  xtr.open('GET', '/auth/islogged', true);
+  xtr.send();
+};
 
+const startTracking = () => {
+  const xtr = new XMLHttpRequest();
+  xtr.open('POST', '/track', true);
+  xtr.send();
+};
+
+const fetchProfile = () => {
+  const xtr = new XMLHttpRequest();
   xtr.onload = () => {
     if (xtr.response) {
-      document.getElementById('status-message-user').innerHTML = xtr.response;
-      document.getElementById('login-btn').style.display = 'none';
-    } else {
-      document.getElementById('logout-btn').style.display = 'none';
+      startTracking();
+      console.log(xtr.response);
+      document.getElementById('persona-name').innerHTML = xtr.response.personaname;
+      document.getElementById('profile-avatar').src = xtr.response.avatarmedium;
     }
   };
-
-  xtr.open('GET', '/auth/getid', true);
+  xtr.responseType = 'json';
+  xtr.open('GET', '/fetchprofile', true);
   xtr.send();
 };
 
-const test = () => {
-  const xtr = new XMLHttpRequest();
-  xtr.onload = () => { if (xtr.response) console.log(xtr.response); };
-  xtr.open('GET', '/playerinfo', true);
-  xtr.send();
-};
 
-window.onload = () => { updateLoginStatus(); test(); };
+window.onload = () => { isLoggedIn(); fetchProfile(); };

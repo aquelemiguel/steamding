@@ -31,8 +31,17 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/views/index.html'));
 });
 
-app.get('/auth/getid', (req, res) => {
-  res.send(req.user ? req.user.steamID : undefined);
+app.get('/fetchprofile', (req, res) => {
+  if (!req.user) res.sendStatus(200);
+  else {
+    scraper.fetchPlayerProfile('FE308435BF852EAD4175D2A70AA87C2D', req.user.steamID).then(
+      profile => res.send(profile),
+    ).catch(error => console.log(error));
+  }
+});
+
+app.get('/auth/islogged', (req, res) => {
+  res.send(req.user ? req.user.steamID : false);
 });
 
 app.get('/auth/openid/return', passport.authenticate('openid'), (req, res) => {
@@ -40,12 +49,19 @@ app.get('/auth/openid/return', passport.authenticate('openid'), (req, res) => {
   else res.sendStatus(404);
 });
 
+app.post('/track', (req) => {
+  scraper.fetchPlayerProfile('FE308435BF852EAD4175D2A70AA87C2D', req.user.steamID)
+    .then(profile => setInterval(() => {
+      scraper.fetchAchievementNo(profile.profileurl, profile.gameid)
+        .then(count => console.log(count));
+    }, 5000))
+    .catch(error => console.log(error));
+});
+
 app.get('/playerinfo', (req, res) => {
-  scraper.fetchPlayerInfo('FE308435BF852EAD4175D2A70AA87C2D', req.user.steamID).then(
+  scraper.fetchPlayerProfile('FE308435BF852EAD4175D2A70AA87C2D', req.user.steamID).then(
     playerInfo => res.send(playerInfo),
-  ).catch(
-    error => console.log(error),
-  );
+  ).catch(error => console.log(error));
 });
 
 app.post('/auth/openid', passport.authenticate('openid'));

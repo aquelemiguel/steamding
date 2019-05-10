@@ -1,7 +1,7 @@
 const cheerio = require('cheerio');
 const request = require('request');
 
-const fetchPlayerInfo = (key, steamID) => new Promise((resolve, reject) => {
+const fetchPlayerProfile = (key, steamID) => new Promise((resolve, reject) => {
   request.get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${key}&steamids=${steamID}`, { json: true }, (err, _res, data) => {
     if (err) reject(err);
 
@@ -19,6 +19,7 @@ const scrapeCurrentGame = profileurl => new Promise((resolve, reject) => {
 });
 
 const fetchAchievementNo = (profileurl, appid) => new Promise((resolve, reject) => {
+  if (!appid) return;
   request.get(`${profileurl}stats/${appid}/?tab=achievements`, (err, _res, data) => {
     if (err) reject(err);
 
@@ -28,5 +29,5 @@ const fetchAchievementNo = (profileurl, appid) => new Promise((resolve, reject) 
 });
 
 module.exports = {
-  fetchPlayerInfo, scrapeCurrentGame, fetchAchievementNo,
+  fetchPlayerProfile, scrapeCurrentGame, fetchAchievementNo,
 };

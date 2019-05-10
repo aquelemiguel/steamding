@@ -11,7 +11,10 @@
     <h1>STEAMDING</h1>
     <h3>beta 0.1b</h3>
 
-    <img src="#">
+    <div id="profile-area">
+        <div id="persona-name">Online</div>
+        <img id="profile-avatar" src="#">
+    </div>
 
     <form action="/auth/openid" method="POST">
         <input id="login-btn" type="submit" value="Login with Steam">
@@ -20,8 +23,6 @@
     <form action="/auth/logout" method="POST">
         <input id="logout-btn" type="submit" value="Logout">
     </form>
-
-    <div id="status-message-user">Not logged in</div>
 
     <input type="radio" name="sfx" value="xbox-360" checked="checked">Xbox 360<br>
     <input type="radio" name="sfx" value="playstation">PlayStation<br>
