@@ -8,6 +8,8 @@ const passport = require('passport');
 const app = express();
 const port = 3000;
 
+const scraper = require('./middlewares/scraper');
+
 app.use(parser.urlencoded({ extended: true }));
 
 const SteamStrategy = new OpenIDStrategy({
@@ -36,6 +38,14 @@ app.get('/auth/getid', (req, res) => {
 app.get('/auth/openid/return', passport.authenticate('openid'), (req, res) => {
   if (req.user) res.redirect('/');
   else res.sendStatus(404);
+});
+
+app.get('/playerinfo', (req, res) => {
+  scraper.fetchPlayerInfo('FE308435BF852EAD4175D2A70AA87C2D', req.user.steamID).then(
+    playerInfo => res.send(playerInfo),
+  ).catch(
+    error => console.log(error),
+  );
 });
 
 app.post('/auth/openid', passport.authenticate('openid'));

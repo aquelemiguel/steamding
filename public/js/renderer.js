@@ -19,4 +19,11 @@ const updateLoginStatus = () => {
   xtr.send();
 };
 
-window.onload = () => { updateLoginStatus(); };
+const test = () => {
+  const xtr = new XMLHttpRequest();
+  xtr.onload = () => { if (xtr.response) console.log(xtr.response); };
+  xtr.open('GET', '/playerinfo', true);
+  xtr.send();
+};
+
+window.onload = () => { updateLoginStatus(); test(); };
