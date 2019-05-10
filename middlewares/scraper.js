@@ -28,6 +28,11 @@ const fetchAchievementNo = (profileurl, appid) => new Promise((resolve, reject) 
   });
 });
 
+const startTracking = (profile) => {
+  fetchAchievementNo(profile.profileurl, profile.gameid)
+    .then(count => console.log(count));
+};
+
 module.exports = {
-  fetchPlayerProfile, scrapeCurrentGame, fetchAchievementNo,
+  fetchPlayerProfile, scrapeCurrentGame, fetchAchievementNo, startTracking,
 };
