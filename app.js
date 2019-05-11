@@ -2,29 +2,18 @@
 require('dotenv').config({ path: 'variables.env' });
 
 const express = require('express');
-const webPush = require('web-push');
 const path = require('path');
 const OpenIDStrategy = require('passport-openid').Strategy;
 const session = require('express-session');
 const passport = require('passport');
 
 const app = express();
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
 
 const scraper = require('./middlewares/scraper');
 
 app.use(require('body-parser').json());
-
-// Push notifications handling.
-const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
-const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
-webPush.setVapidDetails('mailto:test@example.com', publicVapidKey, privateVapidKey);
-
-app.post('/subscribe', (req, res) => {
-  res.status(201).json({});
-
-  const payload = JSON.stringify({ title: 'Push notifications with Service Workers' });
-  webPush.sendNotification(req.body, payload).catch(error => console.log(error));
-});
 
 // Steam login handling.
 const SteamStrategy = new OpenIDStrategy({
@@ -74,7 +63,10 @@ app.post('/track', (req, res) => {
           req.achievements = ach1;
           setInterval(() => scraper.fetchAchievementNo(prof.profileurl, prof.gameid)
             .then((ach2) => {
-              if (ach2 > req.achievements) req.achievements = ach2;
+              io.emit('ACHIEVEMENT_UNLOCKED');
+              if (ach2 > req.achievements) {
+                req.achievements = ach2;
+              }
             }), 5000);
         }));
   } else res.sendStatus(200);
@@ -95,4 +87,4 @@ app.post('/auth/logout', (req, res) => {
 
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(express.static(path.join(__dirname, '/utils')));
-app.listen(process.env.PORT, () => console.log(`Listening on port ${process.env.PORT}.`));
+http.listen(process.env.PORT, () => console.log(`Listening on port ${process.env.PORT}.`));

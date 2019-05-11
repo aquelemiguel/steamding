@@ -31,6 +31,14 @@
 
     <button id="preview" type="button">Preview</button>
     <script src="js/renderer.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        socket.on('ACHIEVEMENT_UNLOCKED', (msg) => {
+            const snd = new Audio(`sfx/${document.querySelector('input[name="sfx"]:checked').value}.mp3`);
+            snd.play();
+        });
+    </script>
 </body>
 
 </html>
