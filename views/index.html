@@ -24,21 +24,15 @@
         <input id="logout-btn" type="submit" value="Logout">
     </form>
 
+    <div id="status-message">Offline</div>
+
     <button id="track-achievements">Start tracking!</button>
 
     <input type="radio" name="sfx" value="xbox-360" checked="checked">Xbox 360<br>
     <input type="radio" name="sfx" value="playstation">PlayStation<br>
 
     <button id="preview" type="button">Preview</button>
-    <script src="js/renderer.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        var socket = io();
-        socket.on('ACHIEVEMENT_UNLOCKED', (msg) => {
-            const snd = new Audio(`sfx/${document.querySelector('input[name="sfx"]:checked').value}.mp3`);
-            snd.play();
-        });
-    </script>
+    <script src="js/bundle.js"></script>
 </body>
 
 </html>

@@ -15,6 +15,17 @@ const scraper = require('./middlewares/scraper');
 
 app.use(require('body-parser').json());
 
+// Socket.io handling.
+const clients = {};
+
+io.on('connection', (socket) => {
+  socket.on('REGISTER', (id) => {
+    clients[id] = socket.id;
+    console.log(`User ${id} registered to socket ${socket.id}!`);
+    io.to(clients[id]).emit('REGISTERED');
+  });
+});
+
 // Steam login handling.
 const SteamStrategy = new OpenIDStrategy({
   providerURL: 'http://steamcommunity.com/openid',
@@ -31,6 +42,11 @@ app.use(session({ secret: 'shh', resave: true, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Renderer Steam account verifications.
+app.get('/auth/islogged', (req, res) => {
+  res.send(req.user ? req.user.steamID : false);
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/views/index.html'));
 });
@@ -44,9 +60,6 @@ app.get('/fetchprofile', (req, res) => {
   }
 });
 
-app.get('/auth/islogged', (req, res) => {
-  res.send(req.user ? req.user.steamID : false);
-});
 
 app.get('/auth/openid/return', passport.authenticate('openid'), (req, res) => {
   if (req.user) res.redirect('/');
@@ -63,11 +76,12 @@ app.post('/track', (req, res) => {
           req.achievements = ach1;
           setInterval(() => scraper.fetchAchievementNo(prof.profileurl, prof.gameid)
             .then((ach2) => {
-              io.emit('ACHIEVEMENT_UNLOCKED');
               if (ach2 > req.achievements) {
+                console.log(clients, req.user.steamID, clients[req.user.steamID]);
                 req.achievements = ach2;
+                io.to(clients[req.user.steamID]).emit('ACHIEVEMENT_UNLOCKED');
               }
-            }), 5000);
+            }), 100);
         }));
   } else res.sendStatus(200);
 });
