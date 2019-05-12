@@ -6,9 +6,9 @@ const updateStatus = (status) => { document.getElementById('status-message').inn
 // Socket handling.
 const initSocket = (steamID) => {
   const socket = io();
+  socket.on('connect', () => socket.emit('ADD_CLIENT', steamID));
   socket.on('ACHIEVEMENT_UNLOCKED', () => new Audio(`sfx/${document.querySelector('input[name="sfx"]:checked').value}.mp3`).play());
   socket.on('REGISTERED', updateStatus('Registered socket!'));
-  socket.emit('REGISTER', steamID);
 };
 
 // Steam account conformities check.
@@ -38,7 +38,8 @@ const isLoggedIn = () => {
   xtr.onload = () => {
     // If the user logged in with Steam, then register it on the socket.
     if (JSON.parse(xtr.response)) {
-      initSocket(xtr.response); document.getElementById('login-btn').style.display = 'none';
+      initSocket(xtr.response);
+      document.getElementById('login-btn').style.display = 'none';
     } else document.getElementById('logout-btn').style.display = 'none';
   };
   xtr.open('GET', '/auth/islogged', true);
@@ -50,6 +51,7 @@ const fetchProfile = () => {
   const xtr = new XMLHttpRequest();
   xtr.onload = () => {
     if (xtr.response) {
+      console.log(xtr.response);
       document.getElementById('persona-name').innerHTML = xtr.response.personaname;
       document.getElementById('profile-avatar').src = xtr.response.avatarmedium;
     }

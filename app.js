@@ -19,7 +19,7 @@ app.use(require('body-parser').json());
 const clients = {};
 
 io.on('connection', (socket) => {
-  socket.on('REGISTER', (id) => {
+  socket.on('ADD_CLIENT', (id) => {
     clients[id] = socket.id;
     console.log(`User ${id} registered to socket ${socket.id}!`);
     io.to(clients[id]).emit('REGISTERED');
@@ -68,9 +68,40 @@ app.get('/auth/openid/return', passport.authenticate('openid'), (req, res) => {
 
 app.post('/track', (req, res) => {
   req.achievements = -1;
+  req.currAppID = -1;
 
+  scraper.fetchPlayerProfile(process.env.APIKEY, req.user.steamID)
+    .then((profile) => { if (profile) req.profileObj = profile; })
+    .catch(() => res.sendStatus(404));
+
+  setInterval(() => scraper.scrapeCurrentGame(req.profileObj).then((game) => {
+    if (game) {
+      scraper.getAppIDByGameName(game).then((appid) => {
+        //  This means the player has stopped playing the current game and
+        //  entered other, therefore, the achievement count should be reset.
+        if (appid === -1 || appid !== req.currAppID) {
+          req.currAppID = appid;
+          req.achievements = -1;
+        }
+      });
+    }
+  }).catch(err => console.log(err)), 1000);
+
+  setInterval(() => scraper.fetchAchievementNo(req.profileObj, req.currAppID).then((count) => {
+    if (count && count > req.achievements) {
+      io.to(clients[req.user.steamID]).emit('ACHIEVEMENT_UNLOCKED');
+      req.achievements = count;
+    }
+  }).catch(err => console.log(err)), 200);
+});
+
+/*
   if (req.user) {
-    scraper.fetchPlayerProfile('FE308435BF852EAD4175D2A70AA87C2D', req.user.steamID)
+    scraper.fetchPlayerProfile('FE308435BF852EAD4175D2A70AA87C2D', req.user.steamID).then(
+
+    )
+
+
       .then(prof => scraper.fetchAchievementNo(prof.profileurl, prof.gameid)
         .then((ach1) => {
           req.achievements = ach1;
@@ -85,6 +116,7 @@ app.post('/track', (req, res) => {
         }));
   } else res.sendStatus(200);
 });
+*/
 
 app.get('/playerinfo', (req, res) => {
   scraper.fetchPlayerProfile('FE308435BF852EAD4175D2A70AA87C2D', req.user.steamID)
