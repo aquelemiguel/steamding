@@ -8448,15 +8448,11 @@ module.exports = yeast;
 },{}],52:[function(require,module,exports){
 const io = require('socket.io-client');
 
-// Update status message.
-const updateStatus = (status) => { document.getElementById('status-message').innerHTML = status; };
-
 // Socket handling.
 const initSocket = (steamID) => {
   const socket = io();
   socket.on('connect', () => socket.emit('ADD_CLIENT', steamID));
   socket.on('ACHIEVEMENT_UNLOCKED', () => new Audio(`sfx/${document.querySelector('input[name="sfx"]:checked').value}.mp3`).play());
-  socket.on('REGISTERED', updateStatus('Registered socket!'));
 };
 
 // Steam account conformities check.
