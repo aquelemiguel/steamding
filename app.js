@@ -56,7 +56,7 @@ app.get('/fetchprofile', (req, res) => {
   else {
     scraper.fetchPlayerProfile('FE308435BF852EAD4175D2A70AA87C2D', req.user.steamID).then(
       profile => res.send(profile),
-    ).catch(error => console.log(error));
+    ).catch(error => console.log(error.message));
   }
 });
 
@@ -75,53 +75,34 @@ app.post('/track', (req, res) => {
     .catch(() => res.sendStatus(404));
 
   setInterval(() => scraper.scrapeCurrentGame(req.profileObj).then((game) => {
-    if (game) {
+    if (game && game !== 'Online') {
       scraper.getAppIDByGameName(game).then((appid) => {
         //  This means the player has stopped playing the current game and
         //  entered other, therefore, the achievement count should be reset.
         if (appid === -1 || appid !== req.currAppID) {
           req.currAppID = appid;
           req.achievements = -1;
-        }
-      });
+        } else req.currAppID = appid;
+      }).catch(err => console.log(err.message));
     }
-  }).catch(err => console.log(err)), 1000);
+  }).catch(err => console.log(err.message)), 1000);
 
   setInterval(() => scraper.fetchAchievementNo(req.profileObj, req.currAppID).then((count) => {
+    //  The 2nd condition should only be triggered when manually editing achievements with SAM.
+    if ((count && req.achievements === -1) || count < req.achievements) {
+      req.achievements = count;
+    }
     if (count && count > req.achievements) {
       io.to(clients[req.user.steamID]).emit('ACHIEVEMENT_UNLOCKED');
       req.achievements = count;
     }
-  }).catch(err => console.log(err)), 200);
+  }).catch(err => console.log(err.message)), 200);
 });
-
-/*
-  if (req.user) {
-    scraper.fetchPlayerProfile('FE308435BF852EAD4175D2A70AA87C2D', req.user.steamID).then(
-
-    )
-
-
-      .then(prof => scraper.fetchAchievementNo(prof.profileurl, prof.gameid)
-        .then((ach1) => {
-          req.achievements = ach1;
-          setInterval(() => scraper.fetchAchievementNo(prof.profileurl, prof.gameid)
-            .then((ach2) => {
-              if (ach2 > req.achievements) {
-                console.log(clients, req.user.steamID, clients[req.user.steamID]);
-                req.achievements = ach2;
-                io.to(clients[req.user.steamID]).emit('ACHIEVEMENT_UNLOCKED');
-              }
-            }), 100);
-        }));
-  } else res.sendStatus(200);
-});
-*/
 
 app.get('/playerinfo', (req, res) => {
-  scraper.fetchPlayerProfile('FE308435BF852EAD4175D2A70AA87C2D', req.user.steamID)
+  scraper.fetchPlayerProfile(process.env.APIKEY, req.user.steamID)
     .then(playerInfo => res.send(playerInfo))
-    .catch(error => console.log(error));
+    .catch(error => console.log(error.message));
 });
 
 app.post('/auth/openid', passport.authenticate('openid'));

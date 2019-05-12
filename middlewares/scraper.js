@@ -11,7 +11,13 @@ const fetchPlayerProfile = (key, steamID) => new Promise((resolve, reject) => {
 const getAppIDByGameName = name => new Promise((resolve, reject) => {
   request.get('https://api.steampowered.com/ISteamApps/GetAppList/v2', { json: true }, (err, _res, data) => {
     if (err) reject(err);
-    resolve(data.applist.apps.filter(game => game.name === name)[0].appid);
+    const found = data.applist.apps.filter(game => game.name === name);
+
+    if (found.length === 0) {
+      reject(new Error('GAME DELETED')); return;
+    }
+
+    resolve(found[0].appid);
   });
 });
 
@@ -20,12 +26,32 @@ const scrapeCurrentGame = profile => new Promise((resolve, reject) => {
   request.get(profile.profileurl, { json: true }, (err, _res, data) => {
     if (err) { reject(err); return; }
 
+    if (profile.communityvisibilitystate === 1) {
+      reject(new Error('PRIVATE_PROFILE')); return;
+    }
+
     const $ = cheerio.load(data);
     resolve($('div').hasClass('profile_in_game_name') ? $('.profile_in_game_name').text() : 'Online');
   });
 });
 
 const fetchAchievementNo = (profile, appid) => new Promise((resolve, reject) => {
+  //  If the profile is unset, the user hasn't logged in.
+  if (!profile) {
+    reject(new Error('USER_NOT_LOGGED')); return;
+  }
+
+  //  If the appid is set to -1, the player isn't playing any game.
+  if (appid === -1 || !appid) {
+    reject(new Error('NOT_PLAYING')); return;
+  }
+
+  //  The community visibility state should be set to 3 (public).
+  //  Otherwise (set to 1, meaning private), the scraper won't find the achievement page.
+  if (profile.communityvisibilitystate === 1) {
+    reject(new Error('PRIVATE_PROFILE')); return;
+  }
+
   if (!profile || !appid) { reject(new Error('Undefined!')); return; }
   request.get(`${profile.profileurl}stats/${appid}/?tab=achievements`, (err, _res, data) => {
     console.log(`${profile.profileurl}stats/${appid}/?tab=achievements`);
@@ -37,10 +63,6 @@ const fetchAchievementNo = (profile, appid) => new Promise((resolve, reject) => 
     //  to the profile page and the privacy settings aren't ideal.
     if (cheerio.load(data)('span[class=actual_persona_name]').text()) {
       reject(new Error('PRIVACY_INCORRECT')); return;
-    }
-
-    if (appid === -1) {
-      reject(new Error('PLAYER_NOT_PLAYING')); return;
     }
 
     const count = cheerio.load(data)('div #topSummaryAchievements').text();
