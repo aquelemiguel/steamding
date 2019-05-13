@@ -60,7 +60,6 @@ app.get('/fetchprofile', (req, res) => {
   }
 });
 
-
 app.get('/auth/openid/return', passport.authenticate('openid'), (req, res) => {
   if (req.user) res.redirect('/');
   else res.sendStatus(404);
@@ -71,12 +70,13 @@ app.post('/track', (req, res) => {
   req.currAppID = -1;
   req.hasAlreadyTriggered = false;
 
-  scraper.fetchPlayerProfile(process.env.APIKEY, req.user.steamID)
-    .then((profile) => { if (profile) req.profileObj = profile; })
-    .catch(() => res.sendStatus(404));
+  setInterval(() => scraper.fetchPlayerProfile(process.env.API_KEY, req.user.steamID)
+    .then((profile) => {
+      if (profile) { req.profileObj = profile; clearInterval(this); }
+    }).catch(err => console.log(err)), process.env.POLLING_RATE_PROFILE || 5000);
 
   setInterval(() => scraper.scrapeCurrentGame(req.profileObj).then((game) => {
-    if (game && game !== 'Online') {
+    if (game && game !== 'Online' && game.match(/^Last Online/) === null) {
       scraper.getAppIDByGameName(game).then((appid) => {
         //  This means the player has stopped playing the current game and
         //  entered other, therefore, the achievement count should be reset.
@@ -86,7 +86,7 @@ app.post('/track', (req, res) => {
         } else req.currAppID = appid;
       }).catch(err => console.log(err.message));
     }
-  }).catch(err => console.log(err.message)), process.env.POLLING_RATE_GAME);
+  }).catch(err => console.log(err.message)), process.env.POLLING_RATE_GAME || 1000);
 
   setInterval(() => scraper.fetchAchievementNo(req.profileObj, req.currAppID).then((count) => {
     //  Hopefully disallow triggering the achievement twice.
@@ -102,11 +102,11 @@ app.post('/track', (req, res) => {
       req.hasAlreadyTriggered = true;
       req.achievements = count;
     }
-  }).catch(err => console.log(err.message)), process.env.POLLING_RATE_ACHIEVEMENTS);
+  }).catch(err => console.log(err.message)), process.env.POLLING_RATE_ACHIEVEMENTS || 200);
 });
 
 app.get('/playerinfo', (req, res) => {
-  scraper.fetchPlayerProfile(process.env.APIKEY, req.user.steamID)
+  scraper.fetchPlayerProfile(process.env.API_KEY, req.user.steamID)
     .then(playerInfo => res.send(playerInfo))
     .catch(error => console.log(error.message));
 });
@@ -120,4 +120,4 @@ app.post('/auth/logout', (req, res) => {
 
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(express.static(path.join(__dirname, '/utils')));
-http.listen(process.env.PORT, () => console.log(`Listening on port ${process.env.PORT}.`));
+http.listen(process.env.PORT || 3000, () => console.log(`Listening on port ${process.env.PORT || 3000}.`));
