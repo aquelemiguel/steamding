@@ -8455,13 +8455,6 @@ const initSocket = (steamID) => {
   socket.on('ACHIEVEMENT_UNLOCKED', () => new Audio(`sfx/${document.querySelector('input[name="sfx"]:checked').value}.mp3`).play());
 };
 
-// Steam account conformities check.
-const isPrivate = (profile) => {
-  if (profile.communityvisibilitystate === 1) {
-    console.log('Profile is private!');
-  }
-};
-
 document.getElementById('preview').addEventListener(('click'), () => {
   const snd = new Audio(`sfx/${document.querySelector('input[name="sfx"]:checked').value}.mp3`);
   snd.play();

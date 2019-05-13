@@ -13,36 +13,10 @@
     src: url('../fonts/motiva-sans-light-italic.ttf');
 }
 
-*{
+body {
     font-family: 'Motiva Sans Light';
-    background-color: black;
-    color: white;
 }
 
 #steamid64 {
     width: 200px;
-}
-
-h1 {
-    font-size: 100;
-    line-height: 0.2;
-}
-
-h3 {
-    font-size: 8;
-    line-height: 0.2;
-}
-
-#profile-avatar {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 1em 1em;
-}
-
-#persona-name {
-    position: absolute;
-    top: 10;
-    right: 0;
-    margin: 1em 1em;
 }

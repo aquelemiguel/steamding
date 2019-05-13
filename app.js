@@ -69,6 +69,7 @@ app.get('/auth/openid/return', passport.authenticate('openid'), (req, res) => {
 app.post('/track', (req, res) => {
   req.achievements = -1;
   req.currAppID = -1;
+  req.hasAlreadyTriggered = false;
 
   scraper.fetchPlayerProfile(process.env.APIKEY, req.user.steamID)
     .then((profile) => { if (profile) req.profileObj = profile; })
@@ -85,18 +86,23 @@ app.post('/track', (req, res) => {
         } else req.currAppID = appid;
       }).catch(err => console.log(err.message));
     }
-  }).catch(err => console.log(err.message)), 1000);
+  }).catch(err => console.log(err.message)), process.env.POLLING_RATE_GAME);
 
   setInterval(() => scraper.fetchAchievementNo(req.profileObj, req.currAppID).then((count) => {
+    //  Hopefully disallow triggering the achievement twice.
+    if (req.hasAlreadyTriggered) {
+      req.hasAlreadyTriggered = false;
+    }
     //  The 2nd condition should only be triggered when manually editing achievements with SAM.
     if ((count && req.achievements === -1) || count < req.achievements) {
       req.achievements = count;
     }
-    if (count && count > req.achievements) {
+    if (count && count > req.achievements && !req.hasAlreadyTriggered) {
       io.to(clients[req.user.steamID]).emit('ACHIEVEMENT_UNLOCKED');
+      req.hasAlreadyTriggered = true;
       req.achievements = count;
     }
-  }).catch(err => console.log(err.message)), 200);
+  }).catch(err => console.log(err.message)), process.env.POLLING_RATE_ACHIEVEMENTS);
 });
 
 app.get('/playerinfo', (req, res) => {
