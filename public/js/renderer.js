@@ -7,20 +7,24 @@ const initSocket = (steamID) => {
   socket.on('ACHIEVEMENT_UNLOCKED', () => new Audio(`sfx/${document.querySelector('input[name="sfx"]:checked').value}.mp3`).play());
 };
 
-document.getElementById('preview').addEventListener(('click'), () => {
-  const snd = new Audio(`sfx/${document.querySelector('input[name="sfx"]:checked').value}.mp3`);
-  snd.play();
-});
-
 const startTracking = () => {
   const xtr = new XMLHttpRequest();
   xtr.open('POST', '/track', true);
   xtr.send();
 };
 
-document.getElementById('track-achievements').addEventListener(('click'), () => {
-  startTracking();
-});
+if (document.getElementById('preview')) {
+  document.getElementById('preview').addEventListener(('click'), () => {
+    const snd = new Audio(`sfx/${document.querySelector('#sfx-select').value}.mp3`);
+    snd.play();
+  });
+}
+
+if (document.getElementById('track-achivements')) {
+  document.getElementById('track-achievements').addEventListener(('click'), () => {
+    startTracking();
+  });
+}
 
 const isLoggedIn = () => {
   const xtr = new XMLHttpRequest();
@@ -28,8 +32,7 @@ const isLoggedIn = () => {
     // If the user logged in with Steam, then register it on the socket.
     if (JSON.parse(xtr.response)) {
       initSocket(xtr.response);
-      document.getElementById('login-btn').style.display = 'none';
-    } else document.getElementById('logout-btn').style.display = 'none';
+    }
   };
   xtr.open('GET', '/auth/islogged', true);
   xtr.send();

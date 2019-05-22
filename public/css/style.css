@@ -1,22 +1,62 @@
 @font-face {
-    font-family: 'Motiva Sans Light';
-    src: url('../fonts/motiva-sans-light.ttf');
+    font-family: 'Motiva Sans Bold Italic';
+    src: url('../fonts/motiva-sans-bold-italic.ttf') format('truetype');
 }
 
 @font-face {
-    font-family: 'Motiva Sans Bold';
-    src: url('../fonts/motiva-sans-bold.ttf');
+    font-family: 'Motiva Sans';
+    src: url('../fonts/motiva-sans.ttf') format('truetype');
 }
 
 @font-face {
-    font-family: 'Motiva Sans Light Italic';
-    src: url('../fonts/motiva-sans-light-italic.ttf');
+    font-family: 'Motiva Sans Regular Italic';
+    src: url('../fonts/motiva-sans-regular-italic.ttf') format('truetype');
+}
+
+a {
+    color: white;
+}
+
+a:hover {
+    color: white;
+    text-decoration: none;
 }
 
 body {
-    font-family: 'Motiva Sans Light';
+    color: white;
+    font-family: 'Motiva Sans';
+    background: rgb(2,0,36);
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(15,27,77,1) 100%);
 }
 
-#steamid64 {
-    width: 200px;
+select {
+    background-color: transparent;
+}
+
+option {
+    color: black;
+}
+
+button {
+    color: white;
+}
+
+h3 {
+    font-family: 'Motiva Sans Bold Italic';
+}
+
+#profile-avatar {
+    vertical-align: middle;
+}
+
+#footer {
+    position: relative;
+    bottom: -25em;
+}
+
+#footer > div {
+    font-family: 'Motiva Sans Regular Italic';
+    border-top: 1px solid;
+    padding-top: 1em;
+    text-align: center;
 }

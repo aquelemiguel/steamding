@@ -51,6 +51,14 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/views/index.html'));
 });
 
+app.get('/faq', (req, res) => {
+  res.sendFile(path.join(__dirname, '/views/faq.html'));
+});
+
+app.get('/logged', (req, res) => {
+  res.sendFile(path.join(__dirname, '/views/logged.html'));
+});
+
 app.get('/fetchprofile', (req, res) => {
   if (!req.user) res.sendStatus(200);
   else {
@@ -61,7 +69,7 @@ app.get('/fetchprofile', (req, res) => {
 });
 
 app.get('/auth/openid/return', passport.authenticate('openid'), (req, res) => {
-  if (req.user) res.redirect('/');
+  if (req.user) res.redirect('/logged');
   else res.sendStatus(404);
 });
 
