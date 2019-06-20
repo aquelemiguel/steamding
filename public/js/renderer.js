@@ -4,7 +4,7 @@ const io = require('socket.io-client');
 const initSocket = (steamID) => {
   const socket = io();
   socket.on('connect', () => socket.emit('ADD_CLIENT', steamID));
-  socket.on('ACHIEVEMENT_UNLOCKED', () => new Audio(`sfx/${document.querySelector('input[name="sfx"]:checked').value}.mp3`).play());
+  socket.on('ACHIEVEMENT_UNLOCKED', () => new Audio(`sfx/${document.querySelector('#sfx-select').value}.mp3`).play());
 };
 
 const startTracking = () => {
@@ -20,7 +20,7 @@ if (document.getElementById('preview')) {
   });
 }
 
-if (document.getElementById('track-achivements')) {
+if (document.getElementById('track-achievements')) {
   document.getElementById('track-achievements').addEventListener(('click'), () => {
     startTracking();
   });
@@ -46,6 +46,7 @@ const fetchProfile = () => {
       console.log(xtr.response);
       document.getElementById('persona-name').innerHTML = xtr.response.personaname;
       document.getElementById('profile-avatar').src = xtr.response.avatarmedium;
+      document.getElementById('persona-playing').innerHTML = (xtr.response.gameextrainfo ? xtr.response.gameextrainfo : 'Not playing');
     }
   };
   xtr.responseType = 'json';

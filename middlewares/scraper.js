@@ -2,6 +2,7 @@ const cheerio = require('cheerio');
 const request = require('request');
 
 const fetchPlayerProfile = (key, steamID) => new Promise((resolve, reject) => {
+  console.log(key, steamID);
   request.get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${key}&steamids=${steamID}`, { json: true }, (err, _res, data) => {
     if (err) { reject(err); return; }
 
