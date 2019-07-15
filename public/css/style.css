@@ -75,3 +75,19 @@ h3 {
     padding-top: 1em;
     text-align: center;
 }
+
+#persona-name {
+    text-align: right;
+}
+
+#persona-playing {
+    text-align: right;
+}
+
+#header h3 {
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}

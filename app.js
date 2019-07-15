@@ -22,9 +22,14 @@ io.on('connection', (socket) => {
   socket.on('ADD_CLIENT', (id) => {
     clients[id] = socket.id;
     console.log(`User ${id} registered to socket ${socket.id}!`);
-    io.to(clients[id]).emit('REGISTERED');
+    io.to(clients[id]).emit('LOG', 'Registered.');
   });
 });
+
+const log = (req, msg) => {
+  io.to(clients[req.user.steamID]).emit('LOG', msg);
+  console.log(msg);
+};
 
 // Steam login handling.
 const SteamStrategy = new OpenIDStrategy({
@@ -64,7 +69,7 @@ app.get('/fetchprofile', (req, res) => {
   else {
     scraper.fetchPlayerProfile('FE308435BF852EAD4175D2A70AA87C2D', req.user.steamID).then(
       profile => res.send(profile),
-    ).catch(error => console.log(error.message));
+    ).catch(error => log(req, error.message));
   }
 });
 
@@ -81,7 +86,7 @@ app.post('/track', (req, res) => {
   setInterval(() => scraper.fetchPlayerProfile(process.env.API_KEY, req.user.steamID)
     .then((profile) => {
       if (profile) { req.profileObj = profile; clearInterval(this); }
-    }).catch(err => console.log(err)), process.env.POLLING_RATE_PROFILE || 5000);
+    }).catch(err => log(req, err)), process.env.POLLING_RATE_PROFILE || 5000);
 
   setInterval(() => scraper.scrapeCurrentGame(req.profileObj).then((game) => {
     if (game && game !== 'Online' && game.match(/^Last Online/) === null) {
@@ -92,9 +97,9 @@ app.post('/track', (req, res) => {
           req.currAppID = appid;
           req.achievements = -1;
         } else req.currAppID = appid;
-      }).catch(err => console.log(err.message));
+      }).catch(err => log(req, err.message));
     }
-  }).catch(err => console.log(err.message)), process.env.POLLING_RATE_GAME || 1000);
+  }).catch(err => log(req, err.message)), process.env.POLLING_RATE_GAME || 1000);
 
   setInterval(() => scraper.fetchAchievementNo(req.profileObj, req.currAppID).then((count) => {
     //  Hopefully disallow triggering the achievement twice.
@@ -110,13 +115,13 @@ app.post('/track', (req, res) => {
       req.hasAlreadyTriggered = true;
       req.achievements = count;
     }
-  }).catch(err => console.log(err.message)), process.env.POLLING_RATE_ACHIEVEMENTS || 200);
+  }).catch(err => log(req, err.message)), process.env.POLLING_RATE_ACHIEVEMENTS || 200);
 });
 
 app.get('/playerinfo', (req, res) => {
   scraper.fetchPlayerProfile(process.env.API_KEY, req.user.steamID)
     .then(playerInfo => res.send(playerInfo))
-    .catch(error => console.log(error.message));
+    .catch(err => log(req, err.message));
 });
 
 app.post('/auth/openid', passport.authenticate('openid'));

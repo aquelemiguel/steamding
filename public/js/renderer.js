@@ -5,6 +5,7 @@ const initSocket = (steamID) => {
   const socket = io();
   socket.on('connect', () => socket.emit('ADD_CLIENT', steamID));
   socket.on('ACHIEVEMENT_UNLOCKED', () => new Audio(`sfx/${document.querySelector('#sfx-select').value}.mp3`).play());
+  socket.on('LOG', (log) => { document.getElementById('logger').value = `${document.getElementById('logger').value}\n${log}`; });
 };
 
 const startTracking = () => {
@@ -20,9 +21,15 @@ if (document.getElementById('preview')) {
   });
 }
 
-if (document.getElementById('track-achievements')) {
-  document.getElementById('track-achievements').addEventListener(('click'), () => {
-    startTracking();
+if (document.getElementById('track')) {
+  const elem = document.getElementById('track');
+  document.getElementById('track').addEventListener(('click'), () => {
+    if (elem.innerHTML === 'Start tracking') {
+      elem.innerHTML = 'Stop tracking';
+      startTracking();
+    } else {
+      elem.innerHTML = 'Start tracking';
+    }
   });
 }
 
@@ -38,7 +45,6 @@ const isLoggedIn = () => {
   xtr.send();
 };
 
-
 const fetchProfile = () => {
   const xtr = new XMLHttpRequest();
   xtr.onload = () => {
@@ -46,7 +52,7 @@ const fetchProfile = () => {
       console.log(xtr.response);
       document.getElementById('persona-name').innerHTML = xtr.response.personaname;
       document.getElementById('profile-avatar').src = xtr.response.avatarmedium;
-      document.getElementById('persona-playing').innerHTML = (xtr.response.gameextrainfo ? xtr.response.gameextrainfo : 'Not playing');
+      document.getElementById('persona-playing').innerHTML = (xtr.response.gameextrainfo ? `Playing ${xtr.response.gameextrainfo}` : 'Not playing');
     }
   };
   xtr.responseType = 'json';
