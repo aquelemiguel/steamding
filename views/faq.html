@@ -12,11 +12,13 @@
 
 <body>
     <div id="header" class="container">
-        <div class="row" style="margin-top: 7%;">
-            <div class="nine columns"><h3><a href="/">steamding</a></h3></div>
-            <div class="two columns">
-                <form action="/auth/openid" method="POST">
-                    <button id="login-btn" type="submit">Login with Steam</button>
+        <div class="row" style="margin-top: 10%;">
+            <div class="nine columns">
+                <a href="/"><img src="img/w_horizontal.png" alt="Smiley face" width=225></a>
+            </div>
+            <div class="three columns" style="text-align: right">
+                <form action="https://github.com/aquelemiguel/steamding/releases" style="display:block; margin:auto;">
+                    <button id="login-btn" type="submit">Download now</button>
                 </form>
             </div>
         </div>
@@ -24,28 +26,20 @@
 
     
     <div class="container">
-        <div class="row">
-            <div class="one-half column" style="margin-top: 10%">
-                <h3>F.A.Q.</h3>
-                <b>How does steamding work?</b>
-                <p>After logging in, Steam provides us your SteamID64, your unique account identifier, and nothing else. We then run it through a simple Steam Web API call to extract some publicly available information like the profile URL, avatar and nickname. If everything's in place, the server then continuously scrapes your community page looking for achievement updates.<br>It's cutting edge tech, really.</p>
-
-                <b>Why does my profile need to be public?</b>
-                <p>Because of web scraping, which is a fancy word for a robot that looks at a page and parses extracted HTML. It must find which game you're playing and its achievement progress. Given all logic is server-sided, we're watching your profile as any random person would. Still, this may only be a temporary measure as I optimize client-side scraping performance.</p>
-
-                <b>Does it work on any browser?</b>
-                <p>Positive on Chrome, Edge and Steam's browser. Haven't tested on any others but should behave as intended.</p>
-            </div>
-            <div class="one-half column" style="margin-top: 16.7%">
+        <div class="row" style="margin-top: 5%;">
+            <h3>F.A.Q.</h3>
+            <p>
+                <b>How does steamding work?</b><br>
+            </p>
+                
+                <p>answer this</p>
+                
                 <b>Can this get me VAC banned?</b>
-                <p>It's a website, it doesn't inject anything. Either way, you can skim-through the source code yourself on its GitHub page for any code that oddly feels like I'm trying to steal your karambit.</p>
+                <p>answer this</p>
 
                 <b>It's busted!</b>
-                <p>It's inevitable, really. This is a side project of a fairly unexperienced college student, so it's more than likely I've overlooked a few things.<br>
+                <p>It's inevitable, really. This is a side project of a overworked college student, so it's more than likely I've overlooked a few things.<br>
                 Hit me up at my email anytime with any reports.</p>
-
-                <b>Why going through all this work?</b>
-                <p>free dopamine idk lol</p>
             </div>
         </div>
     </div>
