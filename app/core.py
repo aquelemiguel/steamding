@@ -1,10 +1,14 @@
-import pystray
+from infi.systray import SysTrayIcon
 import configparser
-from PIL import Image, ImageDraw
 
 import re
 import requests
 from bs4 import BeautifulSoup
+
+import pymsgbox
+
+cfg = configparser.ConfigParser()
+cfg.read('settings.ini')
 
 def scrape_game_title(profile_url):
     res = requests.get(profile_url)
@@ -32,7 +36,7 @@ def scrape_achievement_no(profile_url, appid):
     parent_el = soup.find('div', attrs={'id': 'topSummaryAchievements'})
     messy_ach_str = parent_el.find('div', recursive=False).text
 
-    regex_res = re.search('(\d+) of', messy_ach_str)
+    regex_res = re.search(r'(\d+) of', messy_ach_str)
     ach_no = regex_res.group(1) if regex_res is not None else 'Not found!'
 
     return ach_no
@@ -42,16 +46,20 @@ def get_profile_url(steamid64):
     res = requests.get(f'https://steamcommunity.com/profiles/{steamid64}/')
     return res.url
 
-#   TODO: This code should move to its own file.
-def quit_application(icon):
-    icon.stop()
+def open_settings(systray):
+    steamid64 = pymsgbox.prompt('Insert your steamid64 below')
+    cfg.set('DEFAULT', 'STEAMID64', str(steamid64))
+    
+    with open('settings.ini', 'w') as cfg_file:
+        cfg.write(cfg_file)
 
-image = Image.open('static/logo.png')
-menu = (pystray.MenuItem('Quit', quit_application), pystray.MenuItem('Help', quit_application))
-icon = pystray.Icon('steamding', image, 'steamding', menu)
 
-# icon.run()
+menu_options = (('Settings', None, open_settings),)
+systray = SysTrayIcon('static/logo.ico', 'steamding', menu_options)
 
+systray.start()
+
+"""
 profile_url = get_profile_url(76561197961739246)
 print(profile_url)
 title = scrape_game_title(profile_url)
@@ -60,3 +68,4 @@ appid = convert_title_to_appid(title)
 print(appid)
 ach_no = scrape_achievement_no(profile_url, appid)
 print(ach_no)
+"""
