@@ -4,6 +4,7 @@ import webbrowser
 from playsound import playsound
 
 import os
+import sys
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -14,47 +15,8 @@ from PIL import Image, ImageTk
 cfg = configparser.ConfigParser()
 cfg.read('settings.ini')
 
-def start_tracking():
-    pass
-
-def play_notification_sound():
+def play_notification_sound(systrayicon):
     playsound(f"static\sfx\{cfg.get('DEFAULT', 'SFX')}", False)
-
-def show_interface():
-    root = tk.Tk()
-    root.geometry('500x300')
-    root.title('steamding')
-
-    #   Display logo.
-    logo = tk.PhotoImage(file='static/b_horizontal.png').subsample(4, 4)
-    tk.Label(root, image=logo).pack()
-    tk.Button(root, text='Test', command=play_notification_sound).pack()
-    tk.Button(root, text='Start', command=start_tracking).pack()
-    
-    root_menu = tk.Menu(root)
-    root.config(menu=root_menu)
-
-    options_menu = tk.Menu(root_menu, tearoff=False)
-    root_menu.add_cascade(label='Settings', menu=options_menu)
-
-    options_menu.add_command(label='steamid64', command=open_steamid64_win)
-    
-    sfx_submenu = tk.Menu(options_menu, tearoff=False)
-    
-    for sfx in os.listdir('./static/sfx'):
-        sfx_submenu.add_command(label=sfx, command=lambda: update_config_property('SFX', sfx))
-
-    options_menu.add_cascade(label='Sound effect', menu=sfx_submenu)
-    
-    root_menu.add_command(label='Help', command=lambda: webbrowser.open('https://github.com/aquelemiguel/steamding'))
-    root.mainloop()
-
-def open_steamid64_win():
-    window = tk.Toplevel()
-    tk.Label(window, text='Enter your steamid64').pack()
-    entry = tk.Entry(window)
-    entry.pack()
-    tk.Button(window, text='Save', command=lambda: [update_config_property('STEAMID64', entry.get()), window.destroy()]).pack()
 
 def update_config_property(prop, val):
     cfg.set('DEFAULT', prop, val)
@@ -98,14 +60,26 @@ def get_profile_url(steamid64):
     res = requests.get(f'https://steamcommunity.com/profiles/{steamid64}/')
     return res.url
 
-menu_options = (
-    ('Help', None, lambda x: webbrowser.open('https://github.com/aquelemiguel/steamding')),
-    ('Donate', None, lambda x: webbrowser.open('https://paypal.me/aquelemiguel/1')))
+def setup_tray():
+    sfx_tuple = (('Test sound', 'static/img/bell.ico', play_notification_sound),)
 
-systray = SysTrayIcon('static/logo.ico', 'steamding', menu_options)
+    for sfx_name in os.listdir('./static/sfx'):
+        sfx_tuple = sfx_tuple + ((sfx_name, None, lambda x: update_config_property('SFX', sfx_name)),)
 
-# systray.start()
-show_interface()
+    root = (
+        ('Options', None, (
+            ('Change notification', None, sfx_tuple),
+            ('Check privacy settings...', None, lambda x: webbrowser.open('https://steamcommunity.com/my/edit/settings')),
+            ('Edit configuration...', None, lambda x: webbrowser.open('settings.ini')))),
+        ('Help', 'static/img/github.ico', lambda x: webbrowser.open('https://github.com/aquelemiguel/steamding')),
+        ('Donate', 'static/img/coffee.ico', lambda x: webbrowser.open('https://paypal.me/aquelemiguel/')))
+    
+    systray = SysTrayIcon('static/img/logo.ico', 'steamding', root)
+    return systray
+
+systray = setup_tray()
+systray.start()
+
 
 """
 profile_url = get_profile_url(76561197961739246)
