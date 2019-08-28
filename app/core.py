@@ -12,9 +12,12 @@ from bs4 import BeautifulSoup
 from win10toast import ToastNotifier
 toaster = ToastNotifier()
 
+import threading
+from queue import Queue
+
 cfg = configparser.ConfigParser()
 
-def play_notification_sound(systrayicon):
+def play_notification_sound(systrayicon = None):
     playsound(f"static/sfx/{cfg.get('DEFAULT', 'SFX')}", False)
 
 def update_config_property(prop, val):
@@ -49,7 +52,7 @@ def convert_title_to_appid(title):
     appid = [app['appid'] for app in data['applist']['apps'] if app['name'] == title][0]
     return appid
 
-def scrape_achievement_no(profile_url, appid):
+def scrape_achievements(profile_url, appid):
     res = requests.get(f'{profile_url}stats/{appid}/achievements')
     soup = BeautifulSoup(res.text, 'html.parser')
 
@@ -93,6 +96,32 @@ def setup_tray():
 def show_toast(header, body, duration = 5):
     toaster.show_toast(header, body, icon_path='static/img/w_logo.ico', duration=duration, threaded=True)
 
+def scrape_game_title_thread(profile_url, out_queue):
+    while True:
+        title = scrape_game_title(profile_url)
+        appid = convert_title_to_appid(title)
+        out_queue.put((title, appid))
+
+def scrape_achievements_thread(persona_name, profile_url, in_queue):
+    appid_curr = -1
+    ach_no_curr = -1
+
+    while True:
+        payload = in_queue.get()
+        (title, appid) = payload
+        
+        ach_info = scrape_achievements(profile_url, appid)
+
+        if appid != appid_curr:
+            appid_curr = appid
+            ach_no_curr = -1    # Reset the achievement tracking for the new game.
+            show_toast('Successfully running!', f'Welcome {persona_name}! Now tracking {title}, having unlocked {ach_info[0]} out of {ach_info[1]} ({ach_info[2]}%) achievements.')
+        
+        if ach_no_curr != -1 and ach_info[0] > ach_no_curr:
+            ach_no_curr = ach_info[0]
+            play_notification_sound()
+
+
 def start_tracking(systrayicon = None):
     cfg.read('settings.ini')
     steamid64 = cfg.get('DEFAULT', 'steamid64')
@@ -112,11 +141,14 @@ def start_tracking(systrayicon = None):
 
     elif title == 'Currently Offline':
         show_toast('Successfully running!', f'Welcome {persona_name}, you\'re currently offline.')
-
+    
     else:
-        appid = convert_title_to_appid(title)
-        ach = scrape_achievement_no(profile_url, appid)
-        show_toast('Successfully running!', f'Welcome {persona_name}, you\'re currently playing {title}, having unlocked {ach[0]} out of {ach[1]} ({ach[2]}%) achievements.')
+        queue = Queue()
+        gd_t = threading.Thread(target=scrape_game_title_thread, args=(profile_url, queue,))
+        sa_t = threading.Thread(target=scrape_achievements_thread, args=(persona_name, profile_url, queue,))
+
+        gd_t.start()
+        sa_t.start()
 
 systray = setup_tray()
 systray.start()
