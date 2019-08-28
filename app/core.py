@@ -9,9 +9,6 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-import tkinter as tk
-from PIL import Image, ImageTk
-
 from win10toast import ToastNotifier
 toaster = ToastNotifier()
 
@@ -60,10 +57,8 @@ def scrape_achievement_no(profile_url, appid):
     parent_el = soup.find('div', attrs={'id': 'topSummaryAchievements'})
     messy_ach_str = parent_el.find('div', recursive=False).text
 
-    regex_res = re.search(r'(\d+) of', messy_ach_str)
-    ach_no = regex_res.group(1) if regex_res is not None else 'Not found!'
-
-    return ach_no
+    regex_res = re.search(r'(\d+) of (\d+) \((\d+)%\)', messy_ach_str)
+    return regex_res.groups() if regex_res is not None else None
 
 #   Provided a steamid64, returns the redirected URL, because the user may have set a custom URL for their profile.
 def get_profile_url(steamid64):
@@ -85,6 +80,7 @@ def setup_tray():
         sfx_tuple = sfx_tuple + ((sfx_name, None, lambda x: update_config_property('SFX', sfx_name)),)
 
     root = (
+        ('Reload', None, start_tracking),
         ('Options', None, (
             ('Change notification', None, sfx_tuple),
             ('Check privacy settings...', None, lambda x: webbrowser.open('https://steamcommunity.com/my/edit/settings')),
@@ -95,31 +91,32 @@ def setup_tray():
     systray = SysTrayIcon('static/img/logo.ico', 'steamding', root)
     return systray
 
-def start_tracking():
+def show_toast(header, body, duration = 5):
+    toaster.show_toast(header, body, duration=duration)
+
+def start_tracking(systrayicon = None):
     steamid64 = cfg.get('DEFAULT', 'steamid64')
     profile_url = get_profile_url(steamid64)
 
     if profile_url is 'UNEXISTENT':
-        toaster.show_toast('Could not find your profile!', 'Are you sure you\'ve correctly inputted your steamid64?')
+        show_toast('Could not find your profile!', 'Are you sure you\'ve correctly inputted your steamid64?')
 
     if profile_url is 'PRIVATE':
-        toaster.show_toast('Your profile appears to be private!', 'This app needs your profile to be public to fetch achievement info.')
+        show_toast('Your profile appears to be private!', 'This app needs your profile to be public to fetch achievement info.')
 
     title = scrape_game_title(profile_url)
     persona_name = scrape_persona_name(profile_url)
 
     if title == 'Currently Online':
-        toaster.show_toast('Sucessfully running!', f'Welcome {persona_name}, you\'re currently not playing anything.')
+        show_toast('Sucessfully running!', f'Welcome {persona_name}, you\'re currently not playing anything.')
 
     elif title == 'Currently Offline':
-        toaster.show_toast('Successfully running!', f'Welcome {persona_name}, you\'re currently offline.')
+        show_toast('Successfully running!', f'Welcome {persona_name}, you\'re currently offline.')
 
     else:
-        toaster.show_toast('Successfully running!', f'Welcome {persona_name}, You\'re currently playing {title}.')
-
-    appid = convert_title_to_appid(title)
-    ach_no = scrape_achievement_no(profile_url, appid)
-
+        appid = convert_title_to_appid(title)
+        ach = scrape_achievement_no(profile_url, appid)
+        show_toast('Successfully running!', f'Welcome {persona_name}, you\'re currently playing {title}, having unlocked {ach[0]} out of {ach[1]} ({ach[2]}%) achievements.')
 
 systray = setup_tray()
 systray.start()
