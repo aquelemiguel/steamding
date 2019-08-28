@@ -12,11 +12,14 @@ from bs4 import BeautifulSoup
 import tkinter as tk
 from PIL import Image, ImageTk
 
+from win10toast import ToastNotifier
+toaster = ToastNotifier()
+
 cfg = configparser.ConfigParser()
 cfg.read('settings.ini')
 
 def play_notification_sound(systrayicon):
-    playsound(f"static\sfx\{cfg.get('DEFAULT', 'SFX')}", False)
+    playsound(f"static/sfx/{cfg.get('DEFAULT', 'SFX')}", False)
 
 def update_config_property(prop, val):
     cfg.set('DEFAULT', prop, val)
@@ -28,13 +31,20 @@ def scrape_game_title(profile_url):
     res = requests.get(profile_url)
     soup = BeautifulSoup(res.text, 'html.parser')
 
-    title = soup.find('div', attrs={'class': 'profile_in_game_name'})
+    header = soup.find('div', attrs={'class': 'profile_in_game_header'})
 
-    #   TODO: Eventually handle this exception.
-    if title is None:
-        return
+    if header.text == 'Currently In-Game':
+        title = soup.find('div', attrs={'class': 'profile_in_game_name'})
+        return title.text
+    
+    return header.text
 
-    return title.text
+def scrape_persona_name(profile_url):
+    res = requests.get(profile_url)
+    soup = BeautifulSoup(res.text, 'html.parser')
+
+    persona_name = soup.find('span', attrs={'class': 'actual_persona_name'})
+    return persona_name.text
 
 def convert_title_to_appid(title):
     res = requests.get('https://api.steampowered.com/ISteamApps/GetAppList/v2/')
@@ -58,6 +68,14 @@ def scrape_achievement_no(profile_url, appid):
 #   Provided a steamid64, returns the redirected URL, because the user may have set a custom URL for their profile.
 def get_profile_url(steamid64):
     res = requests.get(f'https://steamcommunity.com/profiles/{steamid64}/')
+    soup = BeautifulSoup(res.text, 'html.parser')
+
+    if soup.find('h3', text='The specified profile could not be found.') is not None:
+        return 'UNEXISTENT'
+
+    if soup.find('div', attrs={'class': 'profile_private_info'}) is not None:
+        return 'PRIVATE'
+
     return res.url
 
 def setup_tray():
@@ -77,17 +95,33 @@ def setup_tray():
     systray = SysTrayIcon('static/img/logo.ico', 'steamding', root)
     return systray
 
+def start_tracking():
+    steamid64 = cfg.get('DEFAULT', 'steamid64')
+    profile_url = get_profile_url(steamid64)
+
+    if profile_url is 'UNEXISTENT':
+        toaster.show_toast('Could not find your profile!', 'Are you sure you\'ve correctly inputted your steamid64?')
+
+    if profile_url is 'PRIVATE':
+        toaster.show_toast('Your profile appears to be private!', 'This app needs your profile to be public to fetch achievement info.')
+
+    title = scrape_game_title(profile_url)
+    persona_name = scrape_persona_name(profile_url)
+
+    if title == 'Currently Online':
+        toaster.show_toast('Sucessfully running!', f'Welcome {persona_name}, you\'re currently not playing anything.')
+
+    elif title == 'Currently Offline':
+        toaster.show_toast('Successfully running!', f'Welcome {persona_name}, you\'re currently offline.')
+
+    else:
+        toaster.show_toast('Successfully running!', f'Welcome {persona_name}, You\'re currently playing {title}.')
+
+    appid = convert_title_to_appid(title)
+    ach_no = scrape_achievement_no(profile_url, appid)
+
+
 systray = setup_tray()
 systray.start()
 
-
-"""
-profile_url = get_profile_url(76561197961739246)
-print(profile_url)
-title = scrape_game_title(profile_url)
-print(title)
-appid = convert_title_to_appid(title)
-print(appid)
-ach_no = scrape_achievement_no(profile_url, appid)
-print(ach_no)
-"""
+start_tracking()
