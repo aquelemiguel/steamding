@@ -13,7 +13,6 @@ from win10toast import ToastNotifier
 toaster = ToastNotifier()
 
 cfg = configparser.ConfigParser()
-cfg.read('settings.ini')
 
 def play_notification_sound(systrayicon):
     playsound(f"static/sfx/{cfg.get('DEFAULT', 'SFX')}", False)
@@ -92,9 +91,10 @@ def setup_tray():
     return systray
 
 def show_toast(header, body, duration = 5):
-    toaster.show_toast(header, body, duration=duration)
+    toaster.show_toast(header, body, icon_path='static/img/w_logo.ico', duration=duration, threaded=True)
 
 def start_tracking(systrayicon = None):
+    cfg.read('settings.ini')
     steamid64 = cfg.get('DEFAULT', 'steamid64')
     profile_url = get_profile_url(steamid64)
 
