@@ -13,7 +13,7 @@ from win10toast import ToastNotifier
 toaster = ToastNotifier()
 
 import threading
-from queue import Queue
+import queue
 
 cfg = configparser.ConfigParser()
 
@@ -107,16 +107,20 @@ def scrape_achievements_thread(persona_name, profile_url, in_queue):
     ach_no_curr = -1
 
     while True:
-        payload = in_queue.get()
-        (title, appid) = payload
-        
+        try:
+            (title, appid) = in_queue.get(block=True if appid_curr == -1 else False)
+        except queue.Empty:
+            pass
+
         ach_info = scrape_achievements(profile_url, appid)
 
         if appid != appid_curr:
             appid_curr = appid
-            ach_no_curr = -1    # Reset the achievement tracking for the new game.
+            ach_no_curr = -1  # Reset the achievement tracking for the new game.
+
+            #   TODO: This alert will probably not display the correct title if the game switches.
             show_toast('Successfully running!', f'Welcome {persona_name}! Now tracking {title}, having unlocked {ach_info[0]} out of {ach_info[1]} ({ach_info[2]}%) achievements.')
-        
+
         if ach_no_curr == -1:
             ach_no_curr = ach_info[0]
 
@@ -146,9 +150,9 @@ def start_tracking(systrayicon = None):
         show_toast('Successfully running!', f'Welcome {persona_name}, you\'re currently offline.')
     
     else:
-        queue = Queue()
-        gd_t = threading.Thread(target=scrape_game_title_thread, args=(profile_url, queue,))
-        sa_t = threading.Thread(target=scrape_achievements_thread, args=(persona_name, profile_url, queue,))
+        q = queue.Queue()
+        gd_t = threading.Thread(target=scrape_game_title_thread, args=(profile_url, q,))
+        sa_t = threading.Thread(target=scrape_achievements_thread, args=(persona_name, profile_url, q,))
 
         gd_t.start()
         sa_t.start()
