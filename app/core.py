@@ -117,6 +117,9 @@ def scrape_achievements_thread(persona_name, profile_url, in_queue):
             ach_no_curr = -1    # Reset the achievement tracking for the new game.
             show_toast('Successfully running!', f'Welcome {persona_name}! Now tracking {title}, having unlocked {ach_info[0]} out of {ach_info[1]} ({ach_info[2]}%) achievements.')
         
+        if ach_no_curr == -1:
+            ach_no_curr = ach_info[0]
+
         if ach_no_curr != -1 and ach_info[0] > ach_no_curr:
             ach_no_curr = ach_info[0]
             play_notification_sound()
