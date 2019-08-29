@@ -120,7 +120,7 @@ def scrape_achievements_thread(persona_name, profile_url, in_queue):
         if ach_no_curr == -1:
             ach_no_curr = ach_info[0]
 
-        if ach_no_curr != -1 and ach_info[0] > ach_no_curr:
+        if ach_no_curr != -1 and ach_info[0] != ach_no_curr:
             ach_no_curr = ach_info[0]
             play_notification_sound()
 
