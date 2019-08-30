@@ -49,8 +49,8 @@ def convert_title_to_appid(title):
     res = requests.get('https://api.steampowered.com/ISteamApps/GetAppList/v2/')
     data = res.json()
 
-    appid = [app['appid'] for app in data['applist']['apps'] if app['name'] == title][0]
-    return appid
+    appid = [app['appid'] for app in data['applist']['apps'] if app['name'] == title]
+    return appid[0] if len(appid) > 0 else None
 
 def scrape_achievements(profile_url, appid):
     res = requests.get(f'{profile_url}stats/{appid}/achievements')
@@ -96,37 +96,66 @@ def setup_tray():
 def show_toast(header, body, duration = 5):
     toaster.show_toast(header, body, icon_path='static/img/w_logo.ico', duration=duration, threaded=True)
 
-def scrape_game_title_thread(profile_url, out_queue):
+def run_state_machine(persona_name, profile_url, out_queue):
+    title = None
+
     while True:
-        title = scrape_game_title(profile_url)
-        appid = convert_title_to_appid(title)
-        out_queue.put((title, appid))
+        temp_title = scrape_game_title(profile_url)
+        print(temp_title)
+
+        #   If the state has changed...
+        if title != temp_title:
+            title = temp_title
+            
+            #   The player is Online.
+            if title == 'Currently Online':
+                out_queue.put(('Online', -1))
+                show_toast('Sucessfully running!', f'Welcome {persona_name}, you\'re currently not playing anything.')
+                
+            #   The player is Offline.
+            elif title == 'Currently Offline':
+                out_queue.put(('Offline', -1))
+                show_toast('Successfully running!', f'Welcome {persona_name}, you\'re currently offline.')
+            
+            #   The player is Playing.
+            else:
+                appid = convert_title_to_appid(title)
+                out_queue.put((title, appid))
+            
 
 def scrape_achievements_thread(persona_name, profile_url, in_queue):
-    appid_curr = -1
+    appid_curr = appid_new = -1
     ach_no_curr = -1
 
     while True:
+        print(appid_new, appid_curr)
+        #   Lock until appid matches a game.
+        while appid_new == -1:
+            appid_curr = -1  # Reset because of Playing -> Online, Online -> Playing the same game.
+            (title, appid_new) = in_queue.get(block=True)
+        
         try:
-            (title, appid) = in_queue.get(block=True if appid_curr == -1 else False)
+            if appid_new != -1:
+                (title, appid_new) = in_queue.get(block=False)
         except queue.Empty:
-            pass
+            pass    # If we didn't receive anything, means we're remaining in the same state.
 
-        ach_info = scrape_achievements(profile_url, appid)
+        if appid_new != -1:
+            ach_info = scrape_achievements(profile_url, appid_new)
 
-        if appid != appid_curr:
-            appid_curr = appid
-            ach_no_curr = -1  # Reset the achievement tracking for the new game.
+            if appid_new != appid_curr:
+                appid_curr = appid_new
+                ach_no_curr = -1  # Reset the achievement tracking for the new game.
 
-            #   TODO: This alert will probably not display the correct title if the game switches.
-            show_toast('Successfully running!', f'Welcome {persona_name}! Now tracking {title}, having unlocked {ach_info[0]} out of {ach_info[1]} ({ach_info[2]}%) achievements.')
+                #   TODO: This alert will probably not display the correct title if the game switches.
+                show_toast('Successfully running!', f'Welcome {persona_name}! Now tracking {title}, having unlocked {ach_info[0]} out of {ach_info[1]} ({ach_info[2]}%) achievements.')
 
-        if ach_no_curr == -1:
-            ach_no_curr = ach_info[0]
+            if ach_no_curr == -1:
+                ach_no_curr = ach_info[0]
 
-        if ach_no_curr != -1 and ach_info[0] != ach_no_curr:
-            ach_no_curr = ach_info[0]
-            play_notification_sound()
+            if ach_no_curr != -1 and ach_info[0] != ach_no_curr:
+                ach_no_curr = ach_info[0]
+                play_notification_sound()
 
 
 def start_tracking(systrayicon = None):
@@ -137,25 +166,20 @@ def start_tracking(systrayicon = None):
     if profile_url is 'UNEXISTENT':
         show_toast('Could not find your profile!', 'Are you sure you\'ve correctly inputted your steamid64?')
 
-    if profile_url is 'PRIVATE':
+    elif profile_url is 'PRIVATE':
         show_toast('Your profile appears to be private!', 'This app needs your profile to be public to fetch achievement info.')
 
-    title = scrape_game_title(profile_url)
-    persona_name = scrape_persona_name(profile_url)
-
-    if title == 'Currently Online':
-        show_toast('Sucessfully running!', f'Welcome {persona_name}, you\'re currently not playing anything.')
-
-    elif title == 'Currently Offline':
-        show_toast('Successfully running!', f'Welcome {persona_name}, you\'re currently offline.')
-    
     else:
         q = queue.Queue()
-        gd_t = threading.Thread(target=scrape_game_title_thread, args=(profile_url, q,))
+        persona_name = scrape_persona_name(profile_url)
+        gd_t = threading.Thread(target=run_state_machine, args=(persona_name, profile_url, q,))
         sa_t = threading.Thread(target=scrape_achievements_thread, args=(persona_name, profile_url, q,))
 
         gd_t.start()
         sa_t.start()
+
+        gd_t.join()
+        sa_t.join()
 
 systray = setup_tray()
 systray.start()
