@@ -1,5 +1,7 @@
-# steamding 
-Enhances your Steam achievements by playing a notification chime when you've unlocked one.
+<p align=center>
+  <img src="https://i.imgur.com/a6f46Lhr.png" width="600" /><br>
+  Enhance your Steam achievements by playing a notification chime when you've unlocked one.
+</p>
 
 ## Usage
 1. Navigate to your Steam Community [**privacy settings**](https://steamcommunity.com/my/edit/settings) and ensure your **game details** are set to **public**.
@@ -13,3 +15,6 @@ The application couldn't find your profile. Either you forgot to or incorrectly 
 
 ### "Your profile appears to be private!"
 Test whether your profile info can be seen when opened on an incognito window. If not, the game details subsection on your [privacy settings](https://steamcommunity.com/my/edit/settings) is set to private or friends only, when it should be public.
+
+## Thanks
+Much love to [**Julieta**](https://github.com/julietafrade97) for designing the beautiful steamding logo, [**Conde**](https://github.com/joao-conde) for testing the code and [**Diogo**](https://github.com/diogodores) for putting together a web page for when at one point this was an Electron app.
