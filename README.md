@@ -6,7 +6,7 @@
 ## Usage
 1. Navigate to your Steam Community [**privacy settings**](https://steamcommunity.com/my/edit/settings) and ensure your **game details** are set to **public**.
 2. **Install and run the application.** You should now see a new icon on your application tray.
-3. Right-click on the steamding icon and navigate to Options > Edit configuration... A configuration file should open. [Find your **steamid64**](https://steamid.io/) and paste it on the settings.ini file which opened. **Don't forget to save it.**
+3. Right-click on the steamding icon and navigate to Options > Edit configuration... A configuration file should open. [Find your **steamid64**](https://steamid.io/) and paste it on the settings.ini file which opened. **Don't forget to save all changes.**
 4. Press the **reload option** or restart the app.
 
 ## Troubleshooting
@@ -15,6 +15,9 @@ The application couldn't find your profile. Either you forgot to or incorrectly 
 
 ### "Your profile appears to be private!"
 Test whether your profile info can be seen when opened on an incognito window. If not, the game details subsection on your [privacy settings](https://steamcommunity.com/my/edit/settings) is set to private or friends only, when it should be public.
+
+## Future improvements
+* Using **Steam OpenID** login could fix the need to set the privacy settings to public.
 
 ## Special thanks
 Much love to [**Julieta**](https://github.com/julietafrade97) for designing the beautiful steamding logo, [**Conde**](https://github.com/joao-conde) for testing the code and [**Diogo**](https://github.com/diogodores) for putting together a web page for when at one point this was an Electron app.
