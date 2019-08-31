@@ -14,13 +14,14 @@ toaster = ToastNotifier()
 
 import threading
 import queue
+from functools import partial
 
 cfg = configparser.ConfigParser()
 
 def play_notification_sound(systrayicon = None):
     playsound(f"static/sfx/{cfg.get('DEFAULT', 'SFX')}", False)
 
-def update_config_property(prop, val):
+def update_config_property(prop, val, systrayicon=None):
     cfg.set('DEFAULT', prop, val)
     
     with open('settings.ini', 'w') as cfg_file:
@@ -79,7 +80,7 @@ def setup_tray():
     sfx_tuple = (('Test sound', 'static/img/bell.ico', play_notification_sound),)
 
     for sfx_name in os.listdir('./static/sfx'):
-        sfx_tuple = sfx_tuple + ((sfx_name, None, lambda x: update_config_property('SFX', sfx_name)),)
+        sfx_tuple = sfx_tuple + ((sfx_name, None, partial(update_config_property, 'SFX', sfx_name)),)
 
     root = (
         ('Reload', None, start_tracking),
@@ -101,7 +102,6 @@ def run_state_machine(persona_name, profile_url, out_queue):
 
     while True:
         temp_title = scrape_game_title(profile_url)
-        print(temp_title)
 
         #   If the state has changed...
         if title != temp_title:
@@ -128,7 +128,6 @@ def scrape_achievements_thread(persona_name, profile_url, in_queue):
     ach_no_curr = -1
 
     while True:
-        print(appid_new, appid_curr)
         #   Lock until appid matches a game.
         while appid_new == -1:
             appid_curr = -1  # Reset because of Playing -> Online, Online -> Playing the same game.
