@@ -23,7 +23,7 @@ Ah, the age old question. The app doesn't hook into any process so it's virtuall
 It's inevitable, really. This is a side project of a overworked college student, so it's more than likely I've overlooked a few things. Hit me up at my email anytime and I'll gladly fix it ASAP.
 
 ### Is it free?
-I couldn't charge you for a few lines of code. Reddit surprised me with its donations [last time](https://github.com/aquelemiguel/vreddit-mirror-bot) and I'm still overwhelmed with your support. 👏 [Link is always open if you'd like to cover domain/ development time.](https://paypal.me/aquelemiguel)
+I couldn't charge you for a few lines of code. Reddit surprised me with its donations [last time](https://github.com/aquelemiguel/vreddit-mirror-bot) and I'm still overwhelmed with your support. 👏 [Link is always open if you'd like to cover hosting costs.](https://paypal.me/aquelemiguel)
 
 ## Troubleshooting
 ### "Could not find your profile!"
