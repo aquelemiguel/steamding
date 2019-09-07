@@ -5,7 +5,7 @@
 
 ## Usage
 1. Navigate to your Steam Community [**privacy settings**](https://steamcommunity.com/my/edit/settings) and ensure your **game details** are set to **public**.
-2. **[Download](https://steamding.com), install and run the application.** You should now see a new icon on your application tray.
+2. **[Download](https://steamding.herokuapp.com), install and run the application.** You should now see a new icon on your application tray.
 3. Right-click on the steamding icon and navigate to Options > Edit configuration... A configuration file should open. [Find your **steamid64**](https://steamid.io/) and paste it on the settings.ini file which opened. **Don't forget to save all changes.**
 4. Press the **reload option** or restart the app.
 
