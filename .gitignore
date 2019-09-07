@@ -1,3 +1,6 @@
 node_modules
 app/env
+app/build
+app/dist
+app/__pycache__/
 variables.env

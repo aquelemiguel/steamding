@@ -18,13 +18,18 @@ from functools import partial
 
 cfg = configparser.ConfigParser()
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
 def play_notification_sound(systrayicon = None):
-    playsound(f"static/sfx/{cfg.get('DEFAULT', 'SFX')}", False)
+    playsound(resource_path(f"static/sfx/{cfg.get('DEFAULT', 'SFX')}"), False)
 
 def update_config_property(prop, val, systrayicon=None):
     cfg.set('DEFAULT', prop, val)
     
-    with open('settings.ini', 'w') as cfg_file:
+    with open(resource_path('settings.ini'), 'w') as cfg_file:
         cfg.write(cfg_file)
 
 def scrape_game_title(profile_url):
@@ -77,9 +82,9 @@ def get_profile_url(steamid64):
     return res.url
 
 def setup_tray():
-    sfx_tuple = (('Test sound', 'static/img/bell.ico', play_notification_sound),)
+    sfx_tuple = (('Test sound', resource_path('static/img/bell.ico'), play_notification_sound),)
 
-    for sfx_name in os.listdir('./static/sfx'):
+    for sfx_name in os.listdir(resource_path('static/sfx')):
         sfx_tuple = sfx_tuple + ((sfx_name, None, partial(update_config_property, 'SFX', sfx_name)),)
 
     root = (
@@ -87,15 +92,15 @@ def setup_tray():
         ('Options', None, (
             ('Change notification', None, sfx_tuple),
             ('Check privacy settings...', None, lambda x: webbrowser.open('https://steamcommunity.com/my/edit/settings')),
-            ('Edit configuration...', None, lambda x: webbrowser.open('settings.ini')))),
+            ('Edit configuration...', None, lambda x: webbrowser.open('.\settings.ini')))),
         ('Help', 'static/img/github.ico', lambda x: webbrowser.open('https://github.com/aquelemiguel/steamding')),
         ('Donate', 'static/img/coffee.ico', lambda x: webbrowser.open('https://paypal.me/aquelemiguel/')))
     
-    systray = SysTrayIcon('static/img/logo.ico', 'steamding', root)
+    systray = SysTrayIcon(resource_path('static/img/logo.ico'), 'steamding', root)
     return systray
 
 def show_toast(header, body, duration = 5):
-    toaster.show_toast(header, body, icon_path='static/img/w_logo.ico', duration=duration, threaded=True)
+    toaster.show_toast(header, body, icon_path=resource_path('static/img/w_logo.ico'), duration=duration, threaded=True)
 
 def run_state_machine(persona_name, profile_url, out_queue):
     title = None
@@ -158,7 +163,7 @@ def scrape_achievements_thread(persona_name, profile_url, in_queue):
 
 
 def start_tracking(systrayicon = None):
-    cfg.read('settings.ini')
+    cfg.read(resource_path('settings.ini'))
     steamid64 = cfg.get('DEFAULT', 'steamid64')
     profile_url = get_profile_url(steamid64)
 
