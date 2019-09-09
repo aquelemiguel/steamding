@@ -17,6 +17,7 @@ import queue
 from functools import partial
 
 cfg = configparser.ConfigParser()
+gd_t, sa_t = None, None
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -179,8 +180,9 @@ def start_tracking(systrayicon = None):
         gd_t = threading.Thread(target=run_state_machine, args=(persona_name, profile_url, q,))
         sa_t = threading.Thread(target=scrape_achievements_thread, args=(persona_name, profile_url, q,))
 
-        gd_t.start()
-        sa_t.start()
+        if gd_t == None: gd_t.kill()
+        if sa_t == None: sa_t.kill()
+        gd_t, sa_t = gd_t.start(), sa_t.start()
 
         gd_t.join()
         sa_t.join()
