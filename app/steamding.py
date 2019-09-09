@@ -180,8 +180,8 @@ def start_tracking(systrayicon = None):
         gd_t = threading.Thread(target=run_state_machine, args=(persona_name, profile_url, q,))
         sa_t = threading.Thread(target=scrape_achievements_thread, args=(persona_name, profile_url, q,))
 
-        if gd_t == None: gd_t.kill()
-        if sa_t == None: sa_t.kill()
+        if gd_t != None: gd_t.kill()
+        if sa_t != None: sa_t.kill()
         gd_t, sa_t = gd_t.start(), sa_t.start()
 
         gd_t.join()
