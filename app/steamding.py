@@ -16,6 +16,8 @@ import threading
 import queue
 from functools import partial
 
+gd_t, sa_t = None, None
+
 cfg = configparser.ConfigParser()
 
 def resource_path(relative_path):
@@ -99,7 +101,7 @@ def setup_tray():
         ('Help', 'static/img/github.ico', lambda x: webbrowser.open('https://github.com/aquelemiguel/steamding')),
         ('Donate', 'static/img/coffee.ico', lambda x: webbrowser.open('https://paypal.me/aquelemiguel/')))
     
-    systray = SysTrayIcon(resource_path('static/img/logo.ico'), 'steamding', root)
+    systray = SysTrayIcon(resource_path('static/img/logo.ico'), 'steamding', root, on_quit=on_quit_callback)
     return systray
 
 def show_toast(header, body, duration = 5):
@@ -164,8 +166,12 @@ def scrape_achievements_thread(persona_name, profile_url, in_queue):
                 ach_no_curr = ach_info[0]
                 play_notification_sound()
 
+def on_quit_callback(systray):
+    sys.exit()
 
 def start_tracking(systrayicon = None):
+    global gd_t, sa_t
+
     cfg.read(resource_path('settings.ini'))
     steamid64 = cfg.get('DEFAULT', 'steamid64')
     profile_url = get_profile_url(steamid64)
@@ -183,11 +189,11 @@ def start_tracking(systrayicon = None):
         gd_t = threading.Thread(target=run_state_machine, args=(persona_name, profile_url, q,))
         sa_t = threading.Thread(target=scrape_achievements_thread, args=(persona_name, profile_url, q,))
 
+        gd_t.daemon = True
+        sa_t.daemon = True
+
         gd_t.start()
         sa_t.start()
-
-        gd_t.join()
-        sa_t.join()
 
 systray = setup_tray()
 systray.start()
