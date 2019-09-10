@@ -5,9 +5,9 @@
 
 ## Usage
 1. Navigate to your Steam Community [**privacy settings**](https://steamcommunity.com/my/edit/settings) and ensure your **game details** are set to **public**.
-2. **[Download](https://steamding.tk), install and run the application.** You should now see a new icon on your application tray.
+2. [Download](https://steamding.tk), extract and run the `steamding.exe` file. You should now see a new icon on your application tray.
 3. Right-click on the steamding icon and navigate to Options > Edit configuration... A configuration file should open. [Find your **steamid64**](https://steamid.io/) and paste it on the settings.ini file which opened. **Don't forget to save all changes.**
-4. Press the **reload option** or restart the app.
+4. Press the **reload option** to restart the app.
 
 ## F.A.Q.
 ### How does steamding work?
@@ -31,6 +31,9 @@ The application couldn't find your profile. Either you forgot to or incorrectly 
 
 ### "Your profile appears to be private!"
 Test whether your profile info can be seen when opened on an incognito window. If not, the game details subsection on your [privacy settings](https://steamcommunity.com/my/edit/settings) is likely set to private or friends only, when it should be public.
+
+### I'm not getting any Windows notifications.
+It's possible you've set your notifications to priority or alarms only. Check this setting by clicking on the square bubble icon on the bottom right of the taskbar. You should have a moon icon with a `focus assist` description.
 
 ## Future improvements
 * Using **Steam OpenID** login could fix the need to set the privacy settings to public although I'm not optimistic.
