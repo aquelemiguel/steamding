@@ -17,7 +17,6 @@ import queue
 from functools import partial
 
 cfg = configparser.ConfigParser()
-gd_t, sa_t = None, None
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -82,6 +81,9 @@ def get_profile_url(steamid64):
 
     return res.url
 
+def restart_app(systrayicon = None):
+    os.execl(sys.executable, sys.executable, *sys.argv)
+
 def setup_tray():
     sfx_tuple = (('Test sound', resource_path('static/img/bell.ico'), play_notification_sound),)
 
@@ -89,7 +91,7 @@ def setup_tray():
         sfx_tuple = sfx_tuple + ((sfx_name, None, partial(update_config_property, 'SFX', sfx_name)),)
 
     root = (
-        ('Reload', None, start_tracking),
+        ('Reload', None, restart_app),
         ('Options', None, (
             ('Change notification', None, sfx_tuple),
             ('Check privacy settings...', None, lambda x: webbrowser.open('https://steamcommunity.com/my/edit/settings')),
@@ -177,12 +179,12 @@ def start_tracking(systrayicon = None):
     else:
         q = queue.Queue()
         persona_name = scrape_persona_name(profile_url)
+
         gd_t = threading.Thread(target=run_state_machine, args=(persona_name, profile_url, q,))
         sa_t = threading.Thread(target=scrape_achievements_thread, args=(persona_name, profile_url, q,))
 
-        if gd_t != None: gd_t.kill()
-        if sa_t != None: sa_t.kill()
-        gd_t, sa_t = gd_t.start(), sa_t.start()
+        gd_t.start()
+        sa_t.start()
 
         gd_t.join()
         sa_t.join()
