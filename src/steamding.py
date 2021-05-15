@@ -27,21 +27,30 @@ def update_appid(new_appid):
     appid = new_appid
     lock.release()
 
+def make_request(endpoint):
+    try:
+        return json.loads(requests.get(endpoint).content)
+    except requests.exceptions.RequestException as e:
+        print(e)
+    
 def fetch_achievement_percentages(appid):
-    endpoint = ("https://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/"
-    f"?gameid={appid}?__random={randrange(10000000)}")
+    while True:
+        content = make_request(("https://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/"
+        f"?gameid={appid}?__random={randrange(10000000)}"))
 
-    temp = json.loads(requests.get(endpoint).content)['achievementpercentages']['achievements']
-    return {ach['name']: ach['percent'] for ach in temp}
+        # This request must not fail, so retry if it doesn't succeed
+        if content is None: continue
+        return {ach['name']: ach['percent'] for ach in content['achievementpercentages']['achievements']}
 
 def fetch_playing_appid():
     while True:
         global appid, rarity_set
 
-        endpoint = ("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/"
-        f"?key={cfg['AUTH']['apikey']}&steamids={cfg['AUTH']['steamid64']}?__random={randrange(10000000)}")
+        content = make_request(("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/"
+        f"?key={cfg['AUTH']['apikey']}&steamids={cfg['AUTH']['steamid64']}?__random={randrange(10000000)}"))
 
-        res = json.loads(requests.get(endpoint).content)['response']['players'][0]
+        if content is None: continue
+        res = content['response']['players'][0]
 
         # Started playing a new game, so we should update the appid and achievement percentages
         if 'gameid' in res and res['gameid'] != appid:
@@ -61,26 +70,28 @@ def fetch_achievements():
         lock.acquire()
         if (appid == -1):
             achieved_set = None
-            print('Stopped tracking... Player is currently not playing anything.')
+            print('Waiting...')
             lock.release()
             continue
 
-        endpoint = ("https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/"
-        f"?appid={appid}&key={cfg['AUTH']['apikey']}&steamid={cfg['AUTH']['steamid64']}?__random={randrange(10000000)}")
+        content = make_request(("https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/"
+        f"?appid={appid}&key={cfg['AUTH']['apikey']}&steamid={cfg['AUTH']['steamid64']}?__random={randrange(10000000)}"))
         lock.release()
 
-        res = json.loads(requests.get(endpoint).content)['playerstats']
-        new_achieved_set = {ach['apiname'] for ach in res['achievements'] if ach['achieved'] == 1}
+        if content is None: continue
+        new_achieved_set = {ach['apiname'] for ach in content['playerstats']['achievements'] if ach['achieved'] == 1}
 
         # Player has just booted the game, so load the achievements into the set and don't play notification
         if achieved_set is None:
             achieved_set = new_achieved_set
-            print(f"Started tracking '{res['gameName']}' ({len(new_achieved_set)}/{len(rarity_set)} achievements unlocked)")
+            print(f"Tracking '{content['playerstats']['gameName']}' ({len(new_achieved_set)}/{len(rarity_set)} achievements unlocked)")
             continue
 
         # An achievement has unlocked...
         if len(new_achieved_set - achieved_set) > 0:
             for new_ach in new_achieved_set - achieved_set:
+                print(f"\nUnlocked {new_ach}! ({len(new_achieved_set)}/{len(rarity_set)})")
+
                 if len(new_achieved_set) == len(rarity_set):
                     play_notification_sound(AchievementType.PLATINUM)
                 
@@ -89,12 +100,14 @@ def fetch_achievements():
 
                 else:
                     play_notification_sound(AchievementType.REGULAR)
+            
+            achieved_set = new_achieved_set
 
 def play_notification_sound(type):
     playsound({
-        AchievementType.REGULAR: '../assets/sfx/ps5/regular.mp3',
-        AchievementType.RARE: '../assets/sfx/ps5-bliss/regular.mp3',
-        AchievementType.PLATINUM: '../assets/sfx/ps5/platinum.mp3'
+        AchievementType.REGULAR: './assets/sfx/ps5/regular.mp3',
+        AchievementType.RARE: './assets/sfx/ps5-bliss/regular.mp3',
+        AchievementType.PLATINUM: './assets/sfx/ps5/platinum.mp3'
     }[type])
 
 def start_tracking():
